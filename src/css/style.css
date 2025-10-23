@@ -1,3 +1,4 @@
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -7,7 +8,7 @@
 html, body {
     height: 100%;
     font-family: Arial, sans-serif;
-    background-color: #e0e0e0;
+    background-color: #e3e3e3;
 }
 
 /* Layout général */
@@ -16,12 +17,6 @@ body {
     flex-direction: column;
 }
 
-/* Le wrapper prend toute la hauteur de la page */
-.wrapper {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
 
 /* Header */
 header {
@@ -35,7 +30,6 @@ header {
 header h1 {
     margin: 0;
     font-size: 24px;
-    color: #333;
 }
 
 header a {
@@ -72,7 +66,7 @@ footer {
     width: 320px;
 }
 
-/* Logo */
+/* logo et connexion */
 .logo {
     margin-bottom: 10px;
 }
@@ -85,14 +79,12 @@ footer {
     display: inline-block;
 }
 
-/* Nom de l'entreprise */
 .nom-entreprise {
     margin-bottom: 25px;
     font-size: 20px;
-    color: #263238; /
+    color: #263238;
 }
 
-/* Champs de saisie */
 .champ {
     width: 100%;
     box-sizing: border-box;
@@ -103,7 +95,6 @@ footer {
     font-size: 14px;
 }
 
-/* Bouton */
 .bouton {
     width: 100%;
     box-sizing: border-box;
@@ -116,7 +107,14 @@ footer {
     cursor: pointer;
 }
 
-/* Main container horizontal avec navbar à droite et contenu à gauche */
+/* Wrapper qui prend toute la hauteur */
+.wrapper {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Main container horizontal avec navbar à droite contenu àgauche */
 .main-container {
     flex: 1;
     display: flex;
@@ -125,18 +123,35 @@ footer {
 
 /* Contenu  */
 .contenu {
-    flex: 1;
+    flex: 1; /* prend tout l'espace restant */
     padding: 30px;
+    gap: 30px;
+
+
     display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
+    flex-direction: column;
+    justify-content: center; /* centre ce qu'il contient horizontalement */
+    align-items: flex-start;     /* centre verticalement */
+
+    overflow: hidden; /* pour eviter le depassement qui fait apparaitre une scrollbar verticale */
 }
 
-/* Navigation */
+.contenu_connexion {
+    flex: 1; /* prend tout l'espace restant */
+    padding: 30px;
+
+
+    display: flex;
+    justify-content: center; /* centre ce qu'il contient horizontalement */
+    align-items: center;     /* centre verticalement */
+
+    overflow: hidden; /* pour eviter le depassement qui fait apparaitre une scrollbar verticale */
+}
+
+/* Nav*/
 nav {
     width: 200px;
-    height: 100%;
+    height: 100%; /* remplit toute la hauteur de .main-container */
     background-color: #ffffff;
     padding: 20px;
     box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
@@ -146,7 +161,8 @@ nav {
     justify-content: flex-start;
 }
 
-/* Liste de navigation */
+
+
 nav ul {
     list-style: none;
 }
@@ -165,11 +181,20 @@ nav ul li a:hover {
     color: #4d15da;
 }
 
-/* Table */
-table {
+/* Table  */
+table{
     border-collapse: collapse;
-    background-color: #ffffff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.boite_ajout {
+    background-color: #fff;
+    padding: 10px;
+    gap : 10px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
 }
 
 th, td {
