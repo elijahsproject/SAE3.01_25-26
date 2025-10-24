@@ -5,6 +5,17 @@
     padding: 0;
 }
 
+a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+a:hover {
+    color:#00A0C6;
+    text-decoration:none;
+    cursor:pointer;
+}
+
 html, body {
     height: 100%;
     font-family: Arial, sans-serif;
@@ -21,6 +32,7 @@ body {
 /* Header */
 header {
     background-color: #ffffff;
+    height: 120px;
     padding: 20px;
     text-align: center;
     position: relative;
@@ -123,17 +135,33 @@ footer {
 
 /* Contenu  */
 .contenu {
-    flex: 1; /* prend tout l'espace restant */
+    flex: 1;
     padding: 30px;
     gap: 30px;
 
 
     display: flex;
     flex-direction: column;
-    justify-content: center; /* centre ce qu'il contient horizontalement */
-    align-items: flex-start;     /* centre verticalement */
+    justify-content: center;
+    align-items: flex-start;
 
-    overflow: hidden; /* pour eviter le depassement qui fait apparaitre une scrollbar verticale */
+    overflow-x: hidden;
+    overflow-y:scroll;
+}
+
+.contenu_modifier {
+    flex: 1;
+    padding: 30px;
+    gap: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+
+    overflow-x: hidden;
+    overflow-y: scroll;
+
+    padding-top: 350px;
 }
 
 .contenu_connexion {
@@ -191,7 +219,7 @@ table{
 .boite_ajout {
     background-color: #fff;
     padding: 10px;
-    gap : 10px;
+    gap : 20px;
     border: 1px solid #ccc;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     border-radius: 8px;

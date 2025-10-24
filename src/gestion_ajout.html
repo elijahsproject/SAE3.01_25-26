@@ -22,12 +22,21 @@
 
 
     <div class="contenu">
-
+        <div class="boite_ajout">
+            <h3>Ajouter</h3>
+            <form method="post" action="">
+                <label for="nom">Nom</label>
+                <input type="text" id="nom" name="nom" placeholder="Nom" required="required">
+                <label for="numserie">Numero de serie</label>
+                <input type="text" id="numserie" name="numserie" placeholder="numserie" required="required">
+                <button type="submit" >Valider</button>
+            </form>
+        </div>
         <table border="1">
             <thead>
             <tr>
                 <th>
-                    <button><a href="gestion_ajout.html">Ajout</a></button>
+                    <button><a href="gestion.html">Ajout</a></button>
                 </th>
                 <th>NOM</th>
                 <th>NB DE SERIE</th>
