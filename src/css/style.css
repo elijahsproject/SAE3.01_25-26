@@ -16,6 +16,8 @@ html, body {
 body {
     display: flex;
     flex-direction: column;
+    margin: 0;
+    overflow: auto;
 }
 
 
@@ -134,9 +136,13 @@ video {
 
 /* Wrapper qui prend toute la hauteur */
 .wrapper {
-    height: 100vh;
+    width: 1920px;
+    height: 1080px;
     display: flex;
     flex-direction: column;
+    margin: 0 auto;
+    position: relative;
+    transform-origin: top left;
 }
 
 /* Main container horizontal avec navbar à droite contenu àgauche */

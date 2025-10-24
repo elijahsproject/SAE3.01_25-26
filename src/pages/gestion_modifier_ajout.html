@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion parc IT - Modifier</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="wrapper">
+    <header>
+        <h1>Plateforme de gestion du parc informatique</h1>
+        <h2>Technicien</h2>
+        <a href="../accueil.html">Deconnexion</a>
+    </header>
+
+    <div class="main-container">
+    <nav>
+        <ul>
+            <li><a href="../accueil.html">Page principale</a></li>
+            <li><a href="inventaire.html">Inventaire</a></li>
+            <li><a href="gestion.html">Gestion</a></li>
+        </ul>
+    </nav>
+
+
+    <div class="contenu_modifier">
+        <div class="boite_ajout">
+            <h3>Ajouter</h3>
+            <form method="post" action="">
+                <label for="nom">Nom</label>
+                <input type="text" id="nom" name="nom" placeholder="Nom" required="required">
+                <label for="numserie">Numero de serie</label>
+                <input type="text" id="numserie" name="numserie" placeholder="numserie" required="required">
+                <button type="submit" >Valider</button>
+            </form>
+        </div>
+
+        <table border="1">
+            <thead>
+            <tr>
+                <th>
+                    <button><a href="gestion_ajout.html">Ajout</a></button>
+                </th>
+                <th>NOM</th>
+                <th>NB DE SERIE</th>
+                <th>FABRICANT</th>
+                <th>MODELE</th>
+                <th>TYPE</th>
+                <th>CPU</th>
+                <th>RAM</th>
+                <th>STOCKAGE</th>
+                <th>OS</th>
+                <th>DOMAINE</th>
+                <th>LOCATION</th>
+                <th>BATIMENT</th>
+                <th>SALLE</th>
+                <th>ADRESSE MAC</th>
+                <th>ETAT</th>
+                <th>DATE D'ACHAT</th>
+                <th>DATE DE GUARANTIE</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><button>Supprimer</button></td>
+                <td>Exemple</td>
+                <td>Exemple</td>
+                <td>Exemple</td>
+                <td>Exemple</td>
+                <td>Exemple</td>
+                <td>Exemple</td>
+                <td>Exemple</td>
+                <td>Exemple</td>
+                <td>Exemple</td>
+                <td>Exemple</td>
+                <td>Exemple</td>
+                <td>Exemple</td>
+                <td>Exemple</td>
+                <td>Exemple</td>
+                <td>Exemple</td>
+                <td>Exemple</td>
+                <td>Exemple</td>
+                <td><button><a href="gestion_modifier.html">Modifier</a></button></td>
+            </tr>
+            </tbody>
+        </table>
+
+
+        <table>
+            <tbody>
+                <tr>
+                    <td>NOM</td>
+                    <td><input type="text" value="Exemple de texte"></td>
+                </tr>
+                <tr>
+                    <td>NB DE SERIE</td>
+                    <td><input type="number" value="10"></td>
+                </tr>
+                <tr>
+                    <td>FABRICANT</td>
+                    <td>
+                        <select>
+                            <option value="option1">Option 1</option>
+                            <option value="option2">Option 2</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>MODELE</td>
+                    <td><input type="text" value="Autre texte"></td>
+                </tr>
+                <tr>
+                    <td>TYPE</td>
+                    <td><input type="text" value="Encore du texte"></td>
+                </tr>
+                <tr>
+                    <td>CPU</td>
+                    <td><input type="text" value="Plus de texte"></td>
+                </tr>
+                <tr>
+                    <td>RAM</td>
+                    <td><input type="number" value="20"></td>
+                </tr>
+                <tr>
+                    <td>STOCKAGE</td>
+                    <td><input type="number" value="30"></td>
+                </tr>
+                <tr>
+                    <td>OS</td>
+                    <td>
+                        <select>
+                            <option value="option1">Option 1</option>
+                            <option value="option2">Option 2</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>DOMAINE</td>
+                    <td><input type="text" value="Autre texte"></td>
+                </tr>
+                <tr>
+                    <td>LOCATION</td>
+                    <td>
+                        <select>
+                            <option value="optionA">Option A</option>
+                            <option value="optionB">Option B</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>BATIMENT</td>
+                    <td><input type="number" value="40"></td>
+                </tr>
+                <tr>
+                    <td>SALLE</td>
+                    <td><input type="text" value="Texte final"></td>
+                </tr>
+                <tr>
+                    <td>ADRESSE MAC</td>
+                    <td>
+                        <select>
+                            <option value="optionX">Option X</option>
+                            <option value="optionY">Option Y</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>ETAT</td>
+                    <td><input type="date" value="2025-10-24"></td>
+                </tr>
+                <tr>
+                    <td>DATE D'ACHAT</td>
+                    <td><input type="date" value="2025-10-24"></td>
+                </tr>
+                <tr>
+                    <td>DATE DE GUARANTIE</td>
+                    <td><input type="text" value="Texte supplémentaire"></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><button>Modifier</button></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><button><a href="gestion.html">Annuler</a></button></td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+    </div>
+
+
+
+    <footer>
+        <p>&copy; 2025 - Projet SAE - Groupe X</p>
+    </footer>
+</div>
+</body>
+</html>
