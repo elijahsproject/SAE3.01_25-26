@@ -25,7 +25,7 @@
                     <form method="post">
                         <input type="text" name="Login" id="Login" placeholder="Login" class="champ">
                         <input type="password" name="MotDePasse" id="MotDePasse" placeholder="Mot de passe" class="champ">
-                        <button type="submit" class="bouton"><a href="gestion.php">Connexion</a></button>
+                        <button type="submit" class="bouton">Connexion</button>
                     </form>
                 </div>
             </div>
@@ -55,12 +55,12 @@ else{
     echo"<br>";
 }
 
-if(isset($_POST['$Login'], $_POST['Login'])){
+if(isset($_POST['Login'], $_POST['MotDePasse'])){
     $login = $_POST['Login'];
-    $mdp = $_POST['Login'];
-    $sql = "SELECT FROM user WHERE login = ? and password = ?";
+    $mdp = $_POST['MotDePasse'];
+    $sql = "SELECT * FROM user WHERE login = ? and password = ?";
     $requete = mysqli_prepare($connecte, $sql);
-    mysqli_stmt_bind_param($requete, 'ss', $login, $password);
+    mysqli_stmt_bind_param($requete, 'ss', $login, $mdp);
     mysqli_stmt_execute($requete);
     $resultat = mysqli_stmt_get_result($requete);
 
@@ -68,7 +68,7 @@ if(isset($_POST['$Login'], $_POST['Login'])){
         $_SESSION['login'] = $login;
         $_SESSION['mdp'] = $mdp;
 
-        header("Location: accueil.php");
+        header("Location: ../accueil.php");
     }
 }
 ?>
