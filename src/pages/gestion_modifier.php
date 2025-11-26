@@ -71,7 +71,7 @@
                 <td>Exemple</td>
                 <td>Exemple</td>
                 <td>Exemple</td>
-                <td><button><a href="gestion_modifier.html">Modifier</a></button></td>
+                <td><button><a href="gestion_modifier.php">Modifier</a></button></td>
             </tr>
             </tbody>
         </table>

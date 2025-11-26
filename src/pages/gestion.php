@@ -18,7 +18,7 @@
             <ul>
                 <li><a href="../accueil.php">Page principale</a></li>
                 <li><a href="inventaire.php">Inventaire</a></li>
-                <li><a href="gestion.html">Gestion</a></li>
+                <li><a href="gestion.php">Gestion</a></li>
             </ul>
         </nav>
 
