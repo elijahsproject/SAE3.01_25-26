@@ -19,7 +19,7 @@
             <div class="conteneur_connexion">
                 <div class="formulaire">
                     <div class="logo">
-                        <img src="logo.png" alt="Logo" class="image-logo">
+                        <img src="../img/logo.png" alt="Logo" class="image-logo">
                     </div>
                     <h1 class="nom-entreprise">Nom Appli</h1>
                     <form method="post">
