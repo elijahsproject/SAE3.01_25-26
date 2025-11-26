@@ -10,15 +10,15 @@
     <header>
         <h1>Plateforme de gestion du parc informatique</h1>
         <h2>Technicien</h2>
-        <a href="../accueil.html">Deconnexion</a>
+        <a href="../accueil.php">Deconnexion</a>
     </header>
 
     <div class="main-container">
     <nav>
         <ul>
-            <li><a href="../accueil.html">Page principale</a></li>
-            <li><a href="inventaire.html">Inventaire</a></li>
-            <li><a href="gestion.html">Gestion</a></li>
+            <li><a href="../accueil.php">Page principale</a></li>
+            <li><a href="inventaire.php">Inventaire</a></li>
+            <li><a href="gestion.php">Gestion</a></li>
         </ul>
     </nav>
 
@@ -38,7 +38,7 @@
             <thead>
             <tr>
                 <th>
-                    <button><a href="gestion.html">Ajout</a></button>
+                    <button><a href="gestion.php">Ajout</a></button>
                 </th>
                 <th>NOM</th>
                 <th>NB DE SERIE</th>
@@ -80,7 +80,7 @@
                 <td>Exemple</td>
                 <td>Exemple</td>
                 <td>Exemple</td>
-                <td><button><a href="gestion_modifier_ajout.html">Modifier</a></button></td>
+                <td><button><a href="gestion_modifier_ajout.php">Modifier</a></button></td>
             </tr>
             </tbody>
         </table>

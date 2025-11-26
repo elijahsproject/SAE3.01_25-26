@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,14 +15,14 @@
 <div class="wrapper">
     <header>
     <h1>Plateforme de gestion du parc informatique</h1>
-    <a href="pages/connexion.html">Connexion</a>
+    <a href="pages/connexion.php">Connexion</a>
     </header>
     <div class="main-container">
         <nav>
             <ul>
                 <li><a href="accueil.html">Page principale</a></li>
-                <li><a href="pages/inventaire.html">Inventaire</a></li>
-                <li><a href="pages/gestion.html">Gestion</a></li>
+                <li><a href="pages/inventaire.php">Inventaire</a></li>
+                <li><a href="pages/gestion.php">Gestion</a></li>
             </ul>
 
         </nav>

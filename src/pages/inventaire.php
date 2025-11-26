@@ -12,14 +12,14 @@
 <div class="wrapper">
     <header>
     <h1>Plateforme de gestion du parc informatique</h1>
-    <a href="connexion.html">Connexion</a>
+    <a href="connexion.php">Connexion</a>
     </header>
     <div class="main-container">
         <nav>
             <ul>
-                <li><a href="../accueil.html">Page principale</a></li>
+                <li><a href="../accueil.php">Page principale</a></li>
                 <li><a href="inventaire.html">Inventaire</a></li>
-                <li><a href="gestion.html">Gestion</a></li>
+                <li><a href="gestion.php">Gestion</a></li>
             </ul>
 
         </nav>
