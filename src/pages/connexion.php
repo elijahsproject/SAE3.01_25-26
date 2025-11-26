@@ -46,7 +46,7 @@ if($connecte==False){
 else{
     echo("connecte avec succes");
 }
-$db = mysqli_select_db($connecte,"student");
+$db = mysqli_select_db($connecte,"rpiBD");
 if(!$db){
     echo "utilisation de la base KO";
 }
@@ -61,9 +61,14 @@ if(isset($_POST['$Login'], $_POST['Login'])){
     $sql = "SELECT FROM user WHERE login = ? and password = ?";
     $requete = mysqli_prepare($connecte, $sql);
     mysqli_stmt_bind_param($requete, 'ss', $login, $password);
-    $resultat = mysqli_stmt_execute($requete);
+    mysqli_stmt_execute($requete);
+    $resultat = mysqli_stmt_get_result($requete);
+
     if (mysqli_num_rows($resultat) === 1) {
         $_SESSION['login'] = $login;
+        $_SESSION['mdp'] = $mdp;
+
+        header("Location: accueil.php");
     }
 }
 ?>
