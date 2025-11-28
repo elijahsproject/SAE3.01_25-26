@@ -70,7 +70,7 @@ if(isset($_POST['Login'], $_POST['MotDePasse'])){
         $_SESSION['login'] = $login;
         $_SESSION['mdp'] = $mdp;
 
-        header("Location: ../accueil.php");
+        header("Location: accueil.php");
     }
 }
 ?>

@@ -11,17 +11,13 @@ session_start();
 <body>
 <div class="wrapper">
     <?php
-    include("../pages/header.php");
+    include("header.php");
     ?>
 
     <div class="main-container">
-        <nav>
-            <ul>
-                <li><a href="../accueil.php">Page principale</a></li>
-                <li><a href="inventaire.php">Inventaire</a></li>
-                <li><a href="gestion.php">Gestion</a></li>
-            </ul>
-        </nav>
+        <?php
+        include("navbar.php");
+        ?>
 
 
         <div class="contenu">

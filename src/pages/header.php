@@ -8,7 +8,7 @@ if (isset($_SESSION['login'])){
 <a href='logout.php'>Deconnexion</a>";
     }
 else {
-    echo '<a class="btn-connexion" href="../src/pages/connexion.php">Connexion</a>';
+    echo '<a class="btn-connexion" href="../pages/connexion.php">Connexion</a>';
 }
 echo "
 </header>

@@ -15,13 +15,9 @@ session_start();
     ?>
 
     <div class="main-container">
-    <nav>
-        <ul>
-            <li><a href="../accueil.php">Page principale</a></li>
-            <li><a href="inventaire.php">Inventaire</a></li>
-            <li><a href="gestion.php">Gestion</a></li>
-        </ul>
-    </nav>
+        <?php
+        include("navbar.php");
+        ?>
 
 
     <div class="contenu_modifier">
