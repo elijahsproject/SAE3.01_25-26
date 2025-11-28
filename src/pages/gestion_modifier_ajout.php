@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,11 +10,9 @@
 </head>
 <body>
 <div class="wrapper">
-    <header>
-        <h1>Plateforme de gestion du parc informatique</h1>
-        <h2>Technicien</h2>
-        <a href="../accueil.php">Deconnexion</a>
-    </header>
+    <?php
+    include("../pages/header.php");
+    ?>
 
     <div class="main-container">
     <nav>

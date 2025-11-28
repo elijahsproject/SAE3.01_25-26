@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,10 +13,9 @@
 
 
 <div class="wrapper">
-    <header>
-    <h1>Plateforme de gestion du parc informatique</h1>
-    <a href="connexion.php">Connexion</a>
-    </header>
+    <?php
+    include("../pages/header.php");
+    ?>
     <div class="main-container">
         <nav>
             <ul>

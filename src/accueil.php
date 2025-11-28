@@ -11,19 +11,13 @@ session_start();
 <body>
 
 <div class="wrapper">
-    <header>
-        <h1>Plateforme de gestion du parc informatique</h1>
 
         <?php
-        if (isset($_SESSION['login'])) {
-            echo '<p class="user-info">Bienvenue ' .$_SESSION['login']. '</p>';
-            echo '<a class="btn-deco" href="pages/logout.php">Déconnexion</a>';
-        }
-        else {
-            echo '<a class="btn-connexion" href="pages/connexion.php">Connexion</a>';
-        }
+
+        include_once("U:\SAE\src\pages\header.php");
+
+
         ?>
-    </header>
 
     <div class="main-container">
         <nav>
@@ -50,10 +44,6 @@ session_start();
                           <li><a href="pages/gestion.php">Gestion</a></li>';
                 }
 
-                // Bouton déconnexion visible pour TOUT utilisateur connecté
-                if (isset($_SESSION['login'])) {
-                    echo '<li><a href="pages/logout.php">Déconnexion</a></li>';
-                }
                 ?>
             </ul>
         </nav>

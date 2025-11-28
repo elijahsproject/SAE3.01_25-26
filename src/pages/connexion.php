@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -38,7 +41,6 @@
 </body>
 </html>
 <?php
-session_start();
 $connecte = mysqli_connect("localhost", "root", "");
 if($connecte==False){
     echo "Erreur de connexion";
