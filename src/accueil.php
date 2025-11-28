@@ -24,7 +24,9 @@ session_start();
             <ul>
                 <?php
                 if (!isset($_SESSION['login'])) {
-                    echo '<li><a href="accueil.php">Page principale</a></li>';
+                    echo '<li><a href="accueil.php">Page principale</a></li>
+                            <li><a href="pages/inventaire.php">Inventaire</a></li>';
+
                 }
 
                 //client
