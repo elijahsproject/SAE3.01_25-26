@@ -22,45 +22,56 @@ session_start();
         ?>
 
         <div class="contenu">
+            <?php
+            $connecte = mysqli_connect("localhost", "root", "", "rpiBD");
 
-            <table border="1">
-                <thead>
-                <tr>
-                    <th>NOM</th>
-                    <th>NB DE SERIE</th>
-                    <th>FABRICANT</th>
-                    <th>MODELE</th>
-                    <th>TYPE</th>
-                    <th>CPU</th>
-                    <th>RAM</th>
-                    <th>DISK</th>
-                    <th>OS</th>
-                    <th>DOMAINE</th>
-                    <th>LOCATION</th>
-                    <th>BATIMENT</th>
-                    <th>SALLE</th>
-                    <th>ETAT</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Exemple</td>
-                    <td>Exemple</td>
-                    <td>Exemple</td>
-                    <td>Exemple</td>
-                    <td>Exemple</td>
-                    <td>Exemple</td>
-                    <td>Exemple</td>
-                    <td>Exemple</td>
-                    <td>Exemple</td>
-                    <td>Exemple</td>
-                    <td>Exemple</td>
-                    <td>Exemple</td>
-                    <td>Exemple</td>
-                    <td>Exemple</td>
-                </tr>
-                </tbody>
-                </table>
+            if (!$connecte) {
+                die("Erreur de connexion");
+            }
+
+            echo "connecte avec succes";
+
+            // Récupération des colonnes
+            $colonnes = mysqli_query($connecte, "SHOW COLUMNS FROM inventaire");
+
+            if (!$colonnes) {
+                die("Erreur dans la requête SHOW COLUMNS");
+            }
+
+            // Récupération des données
+            $data = mysqli_query($connecte, "SELECT * FROM inventaire");
+
+            if (!$data) {
+                die("Erreur dans SELECT * ");
+            }
+
+            echo "<table border='1' cellpadding='5'>";
+            echo "<thead><tr>";
+
+            // Affiche les noms des colonnes
+            while ($col = mysqli_fetch_assoc($colonnes)) {
+                if ($col['Field'] != 'id') {
+                    echo "<th>" . $col['Field'] . "</th>";
+                }
+            }
+
+            echo "</tr></thead>";
+            echo "<tbody>";
+
+            // Affiche les données
+            while ($ligne = mysqli_fetch_assoc($data)) {
+                echo "<tr>";
+                foreach ($ligne as $cle => $valeur) {
+                    //permet de filtrer les collones crées sans devoir faire une longue requète sql
+                    if ($cle != 'id') {
+                        echo "<td>" . $valeur . "</td>";
+                    }
+                }
+                echo "</tr>";
+            }
+
+            echo "</tbody></table>";
+            ?>
         </div>
     </div>
     <footer>
