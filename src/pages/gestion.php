@@ -41,16 +41,16 @@ session_start();
                     echo '<tr><td>TYPE</td><td><input type="text" name="type" value="'.$resultat['type'].'"></td></tr>';
                     echo '<tr><td>CPU</td><td><input type="text" name="cpu" value="'.$resultat['cpu'].'"></td></tr>';
                     echo '<tr><td>RAM</td><td><input type="number" name="ram" value="'.$resultat['ram'].'"></td></tr>';
-                    echo '<tr><td>STOCKAGE</td><td><input type="number" name="disk" value="'.$resultat['disk'].'"></td></tr>';
+                    echo '<tr><td>STOCKAGE</td><td><input type="text" name="disk" value="'.$resultat['disk'].'"></td></tr>';
                     echo '<tr><td>OS</td><td><input type="text" name="os" value="'.$resultat['os'].'"></td></tr>';
                     echo '<tr><td>DOMAINE</td><td><input type="text" name="domaine" value="'.$resultat['domaine'].'"></td></tr>';
                     echo '<tr><td>LOCATION</td><td><input type="text" name="location" value="'.$resultat['location'].'"></td></tr>';
-                    echo '<tr><td>BATIMENT</td><td><input type="number" name="batiment" value="'.$resultat['batiment'].'"></td></tr>';
+                    echo '<tr><td>BATIMENT</td><td><input type="text" name="batiment" value="'.$resultat['batiment'].'"></td></tr>';
                     echo '<tr><td>SALLE</td><td><input type="text" name="salle" value="'.$resultat['salle'].'"></td></tr>';
                     echo '<tr><td>ETAT</td><td><input type="text" name="etat" value="'.$resultat['etat'].'"></td></tr>';
 
 
-                    echo '<tr><td colspan="2"><button type="submit" name="mise_à_jour" class="btn-valider">Modifier</button></td></tr>';
+                    echo '<tr><td colspan="2"><button type="submit" name="mise_a_jour" class="btn-valider">Modifier</button></td></tr>';
                     echo '<tr><td colspan="2"><button><a href="gestion.php">Annuler</a></button></td></tr>';
 
                     echo '</tbody>';
@@ -61,35 +61,38 @@ session_start();
             }
             // quand le deuxième bouton est appuyé
             if (isset($_POST['mise_a_jour'])) {
-                // Récupération des valeurs du formulaire
-                $id        = $_POST['modif_id'];
-                $nom       = $_POST['nom'];
-                $nb_serie  = $_POST['nb_serie'];
+                $id = $_POST['id'];
+                $nom = $_POST['nom'];
+                $nb_serie = $_POST['nb_serie'];
                 $fabricant = $_POST['fabricant'];
-                $modele    = $_POST['modele'];
-                $type      = $_POST['type'];
-                $cpu       = $_POST['cpu'];
-                $ram       = $_POST['ram'];
-                $disk      = $_POST['disk'];
-                $os        = $_POST['os'];
-                $domaine   = $_POST['domaine'];
-                $location  = $_POST['location'];
-                $batiment  = $_POST['batiment'];
-                $salle     = $_POST['salle'];
-                $etat      = $_POST['etat'];
-                $sql = "UPDATE inventaire 
-                SET nom=?, nb_serie=?, fabricant=?, modele=?, type=?, cpu=?, ram=?, disk=?, os=?, domaine=?, location=?, batiment=?, salle=?, etat=? 
-                WHERE id=?";
+                $modele = $_POST['modele'];
+                $type = $_POST['type'];
+                $cpu = $_POST['cpu'];
+                $ram = $_POST['ram'];
+                $disk = $_POST['disk'];
+                $os = $_POST['os'];
+                $domaine = $_POST['domaine'];
+                $location = $_POST['location'];
+                $batiment = $_POST['batiment'];
+                $salle = $_POST['salle'];
+                $etat = $_POST['etat'];
+
+                $sql = "UPDATE inventaire SET nom=?, nb_serie=?, fabricant=?, modele=?, type=?, cpu=?, ram=?, disk=?, os=?, domaine=?, location=?, batiment=?, salle=?, etat=? WHERE id=?";
 
                 $stmt = mysqli_prepare($connecte, $sql);
-                mysqli_stmt_bind_param($stmt, "ssssssssssssssi",
-                        $nom, $nb_serie, $fabricant, $modele, $type, $cpu, $ram, $disk, $os, $domaine, $location, $batiment, $salle, $etat, $id);
-
+                mysqli_stmt_bind_param(
+                        $stmt,
+                        "ssssssisssssssi",
+                        $nom, $nb_serie, $fabricant, $modele, $type, $cpu,
+                        $ram, $disk, $os, $domaine, $location,
+                        $batiment, $salle, $etat, $id
+                );
                 mysqli_stmt_execute($stmt);
                 mysqli_stmt_close($stmt);
 
                 echo "Équipement mis à jour avec succès !";
             }
+
             ?>
             <h3>Liste de unité central : </h3>
             <div class="csv_box">
