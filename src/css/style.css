@@ -133,68 +133,60 @@ video {
     font-size: 16px;
     cursor: pointer;
 }
-
-/* Wrapper qui prend toute la hauteur */
 .wrapper {
-    width: 1920px;
-    height: 1080px;
+    width: 100%;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     margin: 0 auto;
     position: relative;
-    transform-origin: top left;
 }
 
-/* Main container horizontal avec navbar à droite contenu àgauche */
 .main-container {
-    flex: 1;
+    flex-grow: 1;
     display: flex;
     min-height: 0;
+    width: 100%;
 }
 
-/* Contenus  */
 .contenu {
-    flex: 1;
+    flex-grow: 1;
     padding: 30px;
     gap: 30px;
-
-
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: flex-start;
 
     overflow-x: hidden;
-    overflow-y:scroll;
-    padding-top:200px;
+    overflow-y: auto;
 }
 
 .contenu_modifier {
-    flex: 1;
+    display: none;
     padding: 30px;
     gap: 60px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
+    justify-content: flex-start;
 
-    overflow-x: hidden;
-    overflow-y: scroll;
 
-    padding-top: 350px;
+    padding-top: 30px;
+}
+
+.contenu_modifier.visible {
+    display: block;
 }
 
 .contenu_connexion {
-    flex: 1; /* prend tout l'espace restant */
+    flex: 1;
     padding: 30px;
-
-
     display: flex;
-    justify-content: center; /* centre ce qu'il contient horizontalement */
-    align-items: center;     /* centre verticalement */
-
-    overflow: hidden; /* pour eviter le depassement qui fait apparaitre une scrollbar verticale */
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
+
 
 .contenu_index {
     flex: 1;

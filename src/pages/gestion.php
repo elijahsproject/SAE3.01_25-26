@@ -28,7 +28,7 @@ session_start();
 
                 if ($resultat) {
                     echo '<h2>Modifier unité centrale</h2>';
-                    echo '<form method="post" class="form-modif">';
+                    echo '<form method="post" class="contenu_modifier">';
                     echo '<input type="hidden" name="id" value="'.$resultat['id'].'">';
 
                     echo '<table>';
@@ -102,10 +102,10 @@ session_start();
             </div>
 
             <?php
-            $data = mysqli_query($connecte, "SELECT * FROM inventaire");
-            if (!$data) {
-                die("Erreur dans SELECT * ");
-            }
+                $data = mysqli_query($connecte, "SELECT * FROM inventaire");
+                if (!$data) {
+                    die("Erreur dans SELECT * ");
+                }
             ?>
 
             <!-- Tableau des unités centrales -->
