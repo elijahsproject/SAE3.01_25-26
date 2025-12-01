@@ -59,6 +59,45 @@ session_start();
                     echo '</form>';
                 }
             }
+            if (isset($_POST['supprimer'])) {
+                $id = intval($_POST['suppr_id']);
+                $suprimer = mysqli_query($connecte, "DELETE FROM inventaire WHERE id=$id");
+
+                if ($suprimer) {
+                    header('Location: gestion.php');
+                    exit;
+                } else {
+                    echo "Erreur lors de la suppression de l'unité centrale.";
+                }
+            }
+            if (isset($_POST['ajout'])) {
+
+                echo '<h2>Ajouter unité centrale</h2>';
+                echo '<form method="post" class="contenu_modifier">';
+                echo '<table>';
+                echo '<tbody>';
+                echo '<tr><td>NOM</td><td><input type="text" name="nom" value=""></td></tr>';
+                echo '<tr><td>NB DE SERIE</td><td><input type="text" name="nb_serie" value=""></td></tr>';
+                echo '<tr><td>FABRICANT</td><td><input type="text" name="fabricant" value=""></td></tr>';
+                echo '<tr><td>MODELE</td><td><input type="text" name="modele" value=""></td></tr>';
+                echo '<tr><td>TYPE</td><td><input type="text" name="type" value=""></td></tr>';
+                echo '<tr><td>CPU</td><td><input type="text" name="cpu" value=""></td></tr>';
+                echo '<tr><td>RAM</td><td><input type="number" name="ram" value=""></td></tr>';
+                echo '<tr><td>STOCKAGE</td><td><input type="text" name="disk" value=""></td></tr>';
+                echo '<tr><td>OS</td><td><input type="text" name="os" value=""></td></tr>';
+                echo '<tr><td>DOMAINE</td><td><input type="text" name="domaine" value=""></td></tr>';
+                echo '<tr><td>LOCATION</td><td><input type="text" name="location" value=""></td></tr>';
+                echo '<tr><td>BATIMENT</td><td><input type="text" name="batiment" value=""></td></tr>';
+                echo '<tr><td>SALLE</td><td><input type="text" name="salle" value=""></td></tr>';
+                echo '<tr><td>ETAT</td><td><input type="text" name="etat" value=""></td></tr>';
+                echo '<tr><td colspan="2"><button type="submit" name="ajouter_bd" class="btn-valider">Ajouter</button></td></tr>';
+                echo '<tr><td colspan="2"><button><a href="gestion.php">Annuler</a></button></td></tr>';
+                echo '</tbody>';
+                echo '</table>';
+                echo '</form>';
+            }
+
+
             // quand le deuxième bouton est appuyé
             if (isset($_POST['mise_a_jour'])) {
                 $id = $_POST['id'];
@@ -112,7 +151,12 @@ session_start();
             <table border="1">
                 <thead>
                 <tr>
-                    <th><button><a href="gestion_ajout.php">Ajout</a></button></th>
+                    <th>
+                        <form method="post">
+                            <input type="hidden" name="ajout" value="ajout">
+                            <button type="submit">Ajout</button>
+                        </form>
+                    </th>
                     <th>NOM</th>
                     <th>NB DE SERIE</th>
                     <th>FABRICANT</th>
