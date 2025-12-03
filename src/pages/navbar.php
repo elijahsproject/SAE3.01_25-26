@@ -11,8 +11,8 @@ if (isset($_SESSION['login']) &&
     ($_SESSION['login'] === 'adminweb' ||
         $_SESSION['login'] === 'tech1')) {
 
-    echo '
-                          <li><a href="gestion.php">Gestion</a></li>';
+    echo '<li><a href="gestion.php">Gestion</a></li>';
+    echo '<li><a href="utilisateur.php">Utilisateur</a></li>';
 }
 
 echo "</ul>
