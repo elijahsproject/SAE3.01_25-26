@@ -41,7 +41,7 @@ session_start();
                     echo '<tr><td>TYPE</td><td><input type="text" name="type" value="'.$resultat['type'].'"></td></tr>';
                     echo '<tr><td>CPU</td><td><input type="text" name="cpu" value="'.$resultat['cpu'].'"></td></tr>';
                     echo '<tr><td>RAM</td><td><input type="number" name="ram" value="'.$resultat['ram'].'"></td></tr>';
-                    echo '<tr><td>STOCKAGE</td><td><input type="text" name="disk" value="'.$resultat['disk'].'"></td></tr>';
+                    echo '<tr><td>STOCKAGE</td><td><input type="number" name="disk" value="'.$resultat['disk'].'"></td></tr>';
                     echo '<tr><td>OS</td><td><input type="text" name="os" value="'.$resultat['os'].'"></td></tr>';
                     echo '<tr><td>DOMAINE</td><td><input type="text" name="domaine" value="'.$resultat['domaine'].'"></td></tr>';
                     echo '<tr><td>LOCATION</td><td><input type="text" name="location" value="'.$resultat['location'].'"></td></tr>';
@@ -83,7 +83,7 @@ session_start();
                 echo '<tr><td>TYPE</td><td><input type="text" name="type" value=""></td></tr>';
                 echo '<tr><td>CPU</td><td><input type="text" name="cpu" value=""></td></tr>';
                 echo '<tr><td>RAM</td><td><input type="number" name="ram" value=""></td></tr>';
-                echo '<tr><td>STOCKAGE</td><td><input type="text" name="disk" value=""></td></tr>';
+                echo '<tr><td>STOCKAGE</td><td><input type="number" name="disk" value=""></td></tr>';
                 echo '<tr><td>OS</td><td><input type="text" name="os" value=""></td></tr>';
                 echo '<tr><td>DOMAINE</td><td><input type="text" name="domaine" value=""></td></tr>';
                 echo '<tr><td>LOCATION</td><td><input type="text" name="location" value=""></td></tr>';
@@ -95,6 +95,36 @@ session_start();
                 echo '</tbody>';
                 echo '</table>';
                 echo '</form>';
+            }
+            //si le formulaire d'ajout et confirmé
+            if (isset($_POST['ajouter_bd'])) {
+                $nom = $_POST['nom'];
+                $nb_serie = $_POST['nb_serie'];
+                $fabricant = $_POST['fabricant'];
+                $modele = $_POST['modele'];
+                $type = $_POST['type'];
+                $cpu = $_POST['cpu'];
+                $ram = $_POST['ram'];
+                $disk = $_POST['disk'];
+                $os = $_POST['os'];
+                $domaine = $_POST['domaine'];
+                $location = $_POST['location'];
+                $batiment = $_POST['batiment'];
+                $salle = $_POST['salle'];
+                $etat = $_POST['etat'];
+
+                $sql = "INSERT INTO inventaire (nom, nb_serie, fabricant, modele, type, cpu, ram, disk, os, domaine, location, batiment, salle, etat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+                $stmt = mysqli_prepare($connecte, $sql);
+                mysqli_stmt_bind_param($stmt, "ssssssisssssss", $nom, $nb_serie, $fabricant, $modele, $type, $cpu, $ram, $disk, $os, $domaine, $location, $batiment, $salle, $etat);
+
+                if (mysqli_stmt_execute($stmt)) {
+                    echo "<p style='color:green;'>Équipement ajouté avec succès !</p>";
+                } else {
+                    echo "<p style='color:red;'>Erreur lors de l'ajout : " . mysqli_error($connecte) . "</p>";
+                }
+
+                mysqli_stmt_close($stmt);
             }
 
 
