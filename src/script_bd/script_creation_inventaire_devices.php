@@ -44,7 +44,8 @@ if (($handle = fopen($csvFile, "r")) !== FALSE) {
 
     fclose($handle);
     echo "Import terminé avec succès.";
-} else {
+}
+else {
     echo "Impossible d'ouvrir le fichier CSV.";
 }
 
