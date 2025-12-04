@@ -329,3 +329,41 @@ a:hover {
     flex-direction: column;
     gap: 30px;
 }
+
+
+
+
+
+/* Conteneur pour centrer les boutons */
+.gestion-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 30px 0;
+    gap: 40px;
+}
+
+/* Style des boutons (Unités centrales et Moniteurs) */
+.gestion-btn {
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: none;
+    text-align: center;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+
+    color: white;
+    background-color: #5a2ed4;
+}
+
+.gestion-btn:hover {
+    background-color: #4d15da;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+
