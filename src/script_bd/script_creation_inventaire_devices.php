@@ -1,53 +1,76 @@
 <?php
-$host = "localhost";
-$user = "root";
-$pass = "";
-$dbname = "rpiBD";
+$connection = mysqli_connect("localhost", "root", "", "rpiBD");
 
-$conn = new mysqli($host, $user, $pass, $dbname);
-if ($conn->connect_error) {
-    die("Erreur connexion MySQL : " . $conn->connect_error);
+if (!$connection) {
+    die("Connexion échouée : " . mysqli_connect_error());
 }
 
-$sql = "CREATE TABLE IF NOT EXISTS inventory (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    device_name VARCHAR(255),
-    ip_address VARCHAR(255),
-    mac_address VARCHAR(255),
-    location VARCHAR(255)
-)";
-if (!$conn->query($sql)) {
-    die("Erreur création table : " . $conn->error);
+$createTable = "
+CREATE TABLE IF NOT EXISTS inventaire (
+    ID INT PRIMARY KEY AUTO_INCREMENT,
+    NAME VARCHAR(50),
+    SERIAL VARCHAR(50),
+    MANUFACTURER VARCHAR(50),
+    MODEL VARCHAR(100),
+    TYPE VARCHAR(50),
+    CPU VARCHAR(100),
+    RAM_MB INT,
+    DISK_GB INT,
+    OS VARCHAR(100),
+    DOMAIN VARCHAR(100),
+    LOCATION VARCHAR(100),
+    BUILDING VARCHAR(100),
+    ROOM VARCHAR(50),
+    MACADDR VARCHAR(20),
+    PURCHASE_DATE DATE,
+    WARRANTY_END DATE
+) ENGINE=InnoDB;
+";
+
+if (!mysqli_query($connection, $createTable)) {
+    die("Erreur création table : " . mysqli_error($connection));
 }
-$csvFile = __DIR__ . "/inventory_devices.csv";
+
+$csvFile = "inventory_devices.csv";
 
 if (!file_exists($csvFile)) {
     die("Fichier CSV introuvable.");
 }
 
-if (($handle = fopen($csvFile, "r")) !== FALSE) {
-    $header = fgetcsv($handle, 1000, ",");
-    while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+$handle = fopen($csvFile, "r");
 
-        $device = $conn->real_escape_string($data[0]);
-        $ip     = $conn->real_escape_string($data[1]);
-        $mac    = $conn->real_escape_string($data[2]);
-        $loc    = $conn->real_escape_string($data[3]);
+if ($handle === FALSE) {
+    die("Impossible d'ouvrir le fichier CSV.");
+}
 
-        $insert = "INSERT INTO inventory (device_name, ip_address, mac_address, location)
-                   VALUES ('$device', '$ip', '$mac', '$loc')";
+$headers = fgetcsv($handle, 1000, ";");
 
-        if (!$conn->query($insert)) {
-            echo "Erreur lors de l'insertion : " . $conn->error . "<br>";
-        }
+while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
+
+
+    $data = array_map(function($value) use ($connection) {
+        return mysqli_real_escape_string($connection, $value);
+    }, $data);
+
+    $sql = "
+        INSERT INTO inventaire 
+        (NAME, SERIAL, MANUFACTURER, MODEL, TYPE, CPU, RAM_MB, DISK_GB, OS, DOMAIN, LOCATION, BUILDING, ROOM, MACADDR, PURCHASE_DATE, WARRANTY_END)
+        VALUES 
+        (
+            '$data[0]', '$data[1]', '$data[2]', '$data[3]', '$data[4]',
+            '$data[5]', '$data[6]', '$data[7]', '$data[8]', '$data[9]',
+            '$data[10]', '$data[11]', '$data[12]', '$data[13]', '$data[14]',
+            '$data[15]', '$data[16]'
+        );
+    ";
+
+    if (!mysqli_query($connection, $sql)) {
+        echo "Erreur insertion : " . mysqli_error($connection) . "<br>";
     }
-
-    fclose($handle);
-    echo "Import terminé avec succès.";
-}
-else {
-    echo "Impossible d'ouvrir le fichier CSV.";
 }
 
-$conn->close();
+fclose($handle);
+echo "Importation terminée avec succès !";
+
+mysqli_close($connection);
 ?>
