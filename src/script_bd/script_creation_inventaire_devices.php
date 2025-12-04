@@ -5,6 +5,7 @@ if (!$connection) {
     die("Connexion échouée : " . mysqli_connect_error());
 }
 
+/* --- Création de la table inventaire --- */
 $createTable = "
 CREATE TABLE IF NOT EXISTS inventaire (
     ID INT PRIMARY KEY AUTO_INCREMENT,
@@ -24,13 +25,14 @@ CREATE TABLE IF NOT EXISTS inventaire (
     MACADDR VARCHAR(20),
     PURCHASE_DATE DATE,
     WARRANTY_END DATE
-) ENGINE=InnoDB;
+);
 ";
 
-if (!mysqli_query($connection, $createTable)) {
-    die("Erreur création table : " . mysqli_error($connection));
-}
+mysqli_query($connection, $createTable);
 
+echo "Table inventaire créée.<br>";
+
+/* --- Import CSV --- */
 $csvFile = "inventory_devices.csv";
 
 if (!file_exists($csvFile)) {
@@ -39,38 +41,37 @@ if (!file_exists($csvFile)) {
 
 $handle = fopen($csvFile, "r");
 
-if ($handle === FALSE) {
-    die("Impossible d'ouvrir le fichier CSV.");
-}
+// sauter la ligne d’en-têtes
+$headers = fgetcsv($handle, 2000, ",");
 
-$headers = fgetcsv($handle, 1000, ";");
+while (($data = fgetcsv($handle, 2000, ",")) !== FALSE) {
 
-while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
+    if (count($data) != 16) {
+        continue; // ignore silencieusement
+    }
 
-
-    $data = array_map(function($value) use ($connection) {
-        return mysqli_real_escape_string($connection, $value);
+    $data = array_map(function($v) use ($connection){
+        return mysqli_real_escape_string($connection, $v);
     }, $data);
 
     $sql = "
-        INSERT INTO inventaire 
-        (NAME, SERIAL, MANUFACTURER, MODEL, TYPE, CPU, RAM_MB, DISK_GB, OS, DOMAIN, LOCATION, BUILDING, ROOM, MACADDR, PURCHASE_DATE, WARRANTY_END)
-        VALUES 
+        INSERT INTO inventaire
+        (NAME, SERIAL, MANUFACTURER, MODEL, TYPE, CPU, RAM_MB, DISK_GB, OS,
+         DOMAIN, LOCATION, BUILDING, ROOM, MACADDR, PURCHASE_DATE, WARRANTY_END)
+        VALUES
         (
-            '$data[0]', '$data[1]', '$data[2]', '$data[3]', '$data[4]',
-            '$data[5]', '$data[6]', '$data[7]', '$data[8]', '$data[9]',
-            '$data[10]', '$data[11]', '$data[12]', '$data[13]', '$data[14]',
-            '$data[15]', '$data[16]'
+            '$data[0]', '$data[1]', '$data[2]', '$data[3]',
+            '$data[4]', '$data[5]', '$data[6]', '$data[7]',
+            '$data[8]', '$data[9]', '$data[10]', '$data[11]',
+            '$data[12]', '$data[13]', '$data[14]', '$data[15]'
         );
     ";
 
-    if (!mysqli_query($connection, $sql)) {
-        echo "Erreur insertion : " . mysqli_error($connection) . "<br>";
-    }
+    mysqli_query($connection, $sql);  // insertion sans aucune sortie
 }
 
 fclose($handle);
-echo "Importation terminée avec succès !";
-
 mysqli_close($connection);
+
+echo "Import terminé.";
 ?>
