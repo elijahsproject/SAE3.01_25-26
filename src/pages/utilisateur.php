@@ -22,9 +22,8 @@ session_start();
                 die("Erreur de connexion à la base");
             }
 
-            // --- Gestion du formulaire Ajouter ---
             if (isset($_POST['ajout'])) {
-                echo '<h2>Ajouter un utilisateur</h2>';
+                echo '<h2>Ajouter un technicien</h2>';
                 echo '<form method="post">';
                 echo '<table>';
                 echo '<tr><td>Login</td><td><input type="text" name="login"></td></tr>';
@@ -45,14 +44,13 @@ session_start();
                 mysqli_stmt_bind_param($stmt, "ss", $login, $password);
 
                 if (mysqli_stmt_execute($stmt)) {
-                    echo "<p style='color:green;'>Utilisateur ajouté avec succès !</p>";
+                    echo "<p style='color:green;'>Technicien ajouté avec succès !</p>";
                 } else {
                     echo "<p style='color:red;'>Erreur lors de l'ajout : " . mysqli_error($connecte) . "</p>";
                 }
                 mysqli_stmt_close($stmt);
             }
 
-            // --- Gestion du formulaire Modifier ---
             if (isset($_POST['modifier'])) {
                 $id = intval($_POST['modif_id']);
                 $res = mysqli_query($connecte, "SELECT * FROM user WHERE id=$id");
@@ -72,7 +70,6 @@ session_start();
                 }
             }
 
-            // --- Confirmation modification ---
             if (isset($_POST['mise_a_jour'])) {
                 $id = intval($_POST['id']);
                 $login = $_POST['login'];
@@ -87,10 +84,9 @@ session_start();
                 echo "<p style='color:green;'>Utilisateur modifié avec succès !</p>";
             }
 
-            // --- Suppression ---
             if (isset($_POST['supprimer'])) {
                 $id = intval($_POST['suppr_id']);
-                // Vérification login pour ne pas supprimer adminweb
+                // Verif login pour ne pas supprimer adminweb
                 $res = mysqli_query($connecte, "SELECT login FROM user WHERE id=$id");
                 $utilisateur = mysqli_fetch_assoc($res);
                 if ($utilisateur['login'] != 'adminweb') {
@@ -123,7 +119,6 @@ session_start();
                 while ($ligne = mysqli_fetch_assoc($data)) {
                     echo "<tr>";
 
-                    // Colonne gauche : bouton Supprimer
                     echo "<td>";
                     if ($ligne['login'] != 'adminweb') {
                         echo '<form method="post">';
@@ -139,7 +134,6 @@ session_start();
                     echo "<td>" . $ligne['login'] . "</td>";
                     echo "<td>" . $ligne['password'] . "</td>";
 
-                    // Colonne Action : bouton Modifier
                     echo "<td>";
                     if ($ligne['login'] != 'adminweb') {
                         echo '<form method="post">';
