@@ -28,5 +28,6 @@ while (($d = fgetcsv($h, 1000, ",")) !== FALSE) {
 
 fclose($h);
 echo "Import terminé avec succès.";
+
 $conn->close();
 ?>
