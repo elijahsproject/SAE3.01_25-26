@@ -22,9 +22,61 @@ session_start();
             </div>
             <?php
 
-            $connecte = mysqli_connect("localhost", "root", "", "rpiBD");
+            $connecte = mysqli_connect("localhost", "sae2025", "!sae2025!", "rpiBD");
             if (!$connecte) {
                 die("Erreur de connexion");
+            }
+
+            /* ───────────────────────────────────────────── */
+            /* TRAITEMENT EXPORT CSV             */
+            /* ───────────────────────────────────────────── */
+            if (isset($_GET['export_csv'])) {
+                header('Content-Type: text/csv; charset=utf-8');
+                header('Content-Disposition: attachment; filename=inventaire_export.csv');
+                $output = fopen('php://output', 'w');
+
+                // En-têtes
+                fputcsv($output, array('NAME', 'SERIAL', 'MANUFACTURER', 'MODEL', 'TYPE', 'CPU', 'RAM_MB', 'DISK_GB', 'OS', 'DOMAIN', 'LOCATION', 'BUILDING', 'ROOM', 'MACADDR', 'PURCHASE_DATE', 'WARRANTY_END'));
+
+                $query = "SELECT NAME, SERIAL, MANUFACTURER, MODEL, TYPE, CPU, RAM_MB, DISK_GB, OS, DOMAIN, LOCATION, BUILDING, ROOM, MACADDR, PURCHASE_DATE, WARRANTY_END FROM inventaire";
+                $result = mysqli_query($connecte, $query);
+
+                while ($row = mysqli_fetch_assoc($result)) {
+                    fputcsv($output, $row);
+                }
+                fclose($output);
+                exit();
+            }
+
+            /* ───────────────────────────────────────────── */
+            /* TRAITEMENT IMPORT CSV             */
+            /* ───────────────────────────────────────────── */
+            if (isset($_POST['import_csv'])) {
+                if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] == 0) {
+                    $filename = $_FILES['csvFile']['tmp_name'];
+                    $handle = fopen($filename, "r");
+                    
+                    // Sauter l'en-tête
+                    fgetcsv($handle);
+
+                    while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                        // Attention : l'ordre des colonnes dans le CSV doit être EXACTEMENT celui ci-dessous
+                        $sql = "INSERT INTO inventaire (NAME, SERIAL, MANUFACTURER, MODEL, TYPE, CPU, RAM_MB, DISK_GB, OS, DOMAIN, LOCATION, BUILDING, ROOM, MACADDR, PURCHASE_DATE, WARRANTY_END) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        
+                        $stmt = mysqli_prepare($connecte, $sql);
+                        
+                        // Types : s=string, i=integer. RAM et DISK sont des int, le reste string.
+                        mysqli_stmt_bind_param($stmt, "ssssssiiissssssss", 
+                            $data[0], $data[1], $data[2], $data[3], 
+                            $data[4], $data[5], $data[6], $data[7], 
+                            $data[8], $data[9], $data[10], $data[11], 
+                            $data[12], $data[13], $data[14], $data[15]
+                        );
+                        mysqli_stmt_execute($stmt);
+                    }
+                    fclose($handle);
+                    echo "<p style='color:green;'>Importation Inventaire réussie !</p>";
+                }
             }
 
             if (isset($_POST['modifier'])) {
@@ -150,9 +202,12 @@ session_start();
 
             <h3>Liste de unité central : </h3>
             <div class="csv_box">
-                <label for="csvFile" class="csv">Importer CSV</label>
-                <input type="file" id="csvFile" accept=".csv" style="display: none;" />
-                <a href="" class="csv2">Exporter en CSV</a>
+                <form method="post" enctype="multipart/form-data" style="display:inline;">
+                    <label for="csvFileInputGestion" class="csv" style="cursor:pointer;">Importer CSV</label>
+                    <input type="file" id="csvFileInputGestion" name="csvFile" accept=".csv" style="display: none;" onchange="this.form.submit()" />
+                    <input type="hidden" name="import_csv" value="1">
+                </form>
+                <a href="gestion.php?export_csv=1" class="csv2">Exporter en CSV</a>
             </div>
 
             <?php

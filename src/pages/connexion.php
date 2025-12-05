@@ -41,7 +41,7 @@ session_start();
 </body>
 </html>
 <?php
-$connecte = mysqli_connect("localhost", "root", "");
+$connecte = mysqli_connect("localhost", "raf", "o77553");
 if($connecte==False){
     echo "Erreur de connexion";
 }

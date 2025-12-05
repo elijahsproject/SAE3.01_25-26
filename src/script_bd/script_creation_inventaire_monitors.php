@@ -1,5 +1,5 @@
 <?php
-$connection = mysqli_connect("localhost", "root", "", "rpiBD");
+$connection = mysqli_connect("localhost", "sae2025", "!sae2025!", "rpiBD");
 
 if (!$connection) {
     die("Connexion échouée : " . mysqli_connect_error());

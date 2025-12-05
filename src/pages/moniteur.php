@@ -30,8 +30,57 @@ session_start();
             /*                CONNEXION BD                   */
             /* ───────────────────────────────────────────── */
 
-            $connecte = mysqli_connect("localhost", "root", "", "rpiBD");
+            $connecte = mysqli_connect("localhost", "sae2025", "!sae2025!", "rpiBD");
             if (!$connecte) { die("Erreur de connexion"); }
+
+            /* ───────────────────────────────────────────── */
+            /* TRAITEMENT EXPORT CSV             */
+            /* ───────────────────────────────────────────── */
+            if (isset($_GET['export_csv'])) {
+                header('Content-Type: text/csv; charset=utf-8');
+                header('Content-Disposition: attachment; filename=moniteurs_export.csv');
+                $output = fopen('php://output', 'w');
+
+                // En-têtes des colonnes CSV
+                fputcsv($output, array('SERIAL', 'MANUFACTURER', 'MODEL', 'SIZE_INCH', 'RESOLUTION', 'CONNECTOR', 'ATTACHED_TO'));
+
+                $query = "SELECT SERIAL, MANUFACTURER, MODEL, SIZE_INCH, RESOLUTION, CONNECTOR, ATTACHED_TO FROM moniteur";
+                $result = mysqli_query($connecte, $query);
+
+                while ($row = mysqli_fetch_assoc($result)) {
+                    fputcsv($output, $row);
+                }
+                fclose($output);
+                exit(); // Important pour ne pas télécharger le reste du HTML
+            }
+
+            /* ───────────────────────────────────────────── */
+            /* TRAITEMENT IMPORT CSV             */
+            /* ───────────────────────────────────────────── */
+            if (isset($_POST['import_csv'])) {
+                if ($_FILES['csvFile']['error'] == 0) {
+                    $filename = $_FILES['csvFile']['tmp_name'];
+                    $handle = fopen($filename, "r");
+
+                    // On saute la première ligne si c'est les en-têtes (optionnel, commente cette ligne si ton CSV n'a pas d'en-tête)
+                    fgetcsv($handle); 
+
+                    while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                        // $data correspond aux colonnes du CSV. Assure-toi que l'ordre correspond !
+                        // Exemple attendu CSV : SERIAL, MANUFACTURER, MODEL, SIZE_INCH, RESOLUTION, CONNECTOR, ATTACHED_TO
+                        $sql = "INSERT INTO moniteur (SERIAL, MANUFACTURER, MODEL, SIZE_INCH, RESOLUTION, CONNECTOR, ATTACHED_TO) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                        $stmt = mysqli_prepare($connecte, $sql);
+                        
+                        // Vérification des types (ajuste si nécessaire, ici j'ai mis 'i' pour size_inch comme dans ton code)
+                        mysqli_stmt_bind_param($stmt, "sssisss", $data[0], $data[1], $data[2], $data[3], $data[4], $data[5], $data[6]);
+                        mysqli_stmt_execute($stmt);
+                    }
+                    fclose($handle);
+                    echo "<p style='color:green;'>Importation CSV réussie !</p>";
+                } else {
+                    echo "<p style='color:red;'>Erreur lors du téléchargement du fichier.</p>";
+                }
+            }
 
             /* ───────────────────────────────────────────── */
             /*         TRAITEMENT FORMULAIRE MODIFIER        */
@@ -145,9 +194,13 @@ session_start();
             <h3>Liste des moniteurs</h3>
 
             <div class="csv_box">
-                <label for="csvFile" class="csv">Importer CSV</label>
-                <input type="file" id="csvFile" accept=".csv" style="display:none;">
-                <a href="#" class="csv2">Exporter CSV</a>
+                <form method="post" enctype="multipart/form-data" style="display:inline;">
+                    <label for="csvFileInput" class="csv" style="cursor:pointer;">Importer CSV</label>
+                    <input type="file" id="csvFileInput" name="csvFile" accept=".csv" style="display:none;" onchange="this.form.submit()">
+                    <input type="hidden" name="import_csv" value="1">
+                </form>
+                
+                <a href="moniteur.php?export_csv=1" class="csv2">Exporter CSV</a>
             </div>
 
             <?php

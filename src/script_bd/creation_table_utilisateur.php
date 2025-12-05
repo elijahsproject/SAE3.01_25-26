@@ -1,12 +1,13 @@
 <?php
-$connection = mysqli_connect("localhost", "root", "", "rpiBD");
+$connection = mysqli_connect("localhost", "sae2025", "!sae2025!", "rpiBD");
+
 
 if (!$connection) {
     die("Connexion échouée : " . mysqli_connect_error());
 }
 
 
-$sql_table = "CREATE TABLE IF NOT EXISTS user (
+$sql_table = "CREATE TABLE IF NOT EXISTS usermmmmmmmm (
     id INT AUTO_INCREMENT PRIMARY KEY,
     login VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL

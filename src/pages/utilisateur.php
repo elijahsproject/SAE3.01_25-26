@@ -17,7 +17,7 @@ session_start();
 
         <div class="contenu">
             <?php
-            $connecte = mysqli_connect("localhost", "root", "", "rpiBD");
+            $connecte = mysqli_connect("localhost", "sae2025", "!sae2025!", "rpiBD");
             if (!$connecte) {
                 die("Erreur de connexion à la base");
             }
