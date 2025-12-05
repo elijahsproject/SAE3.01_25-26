@@ -35,4 +35,5 @@ if (mysqli_query($connection, $createTable)) {
 }
 
 mysqli_close($connection);
+
 ?>
