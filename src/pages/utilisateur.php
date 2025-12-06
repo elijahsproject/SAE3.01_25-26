@@ -150,6 +150,50 @@ session_start();
                 ?>
                 </tbody>
             </table>
+            <h2>Ajouter un OS ou un Manufacturer</h2>
+            <form method="post">
+                <label>Choisir le type :</label>
+                <select name="type_ajout">
+                    <option value="OS">OS</option>
+                    <option value="MANUFACTURER">Manufacturer</option>
+                </select>
+                <input type="text" name="nouvelle_valeur" placeholder="Nouvelle valeur">
+                <button type="submit" name="ajouter_option">Ajouter</button>
+            </form>
+
+            <?php
+
+            if (!isset($_SESSION['options_suppl'])) {
+                $_SESSION['options_suppl'] = [
+                        'OS' => [],
+                        'MANUFACTURER' => []
+                ];
+            }
+
+            if (isset($_POST['ajouter_option'])) {
+                $type = $_POST['type_ajout'];
+                $valeur = trim($_POST['nouvelle_valeur']);
+
+                if ($valeur != "") {
+                    $check_sql = "SELECT COUNT(*) as count FROM inventaire WHERE $type = ?";
+                    $stmt = mysqli_prepare($connecte, $check_sql);
+                    mysqli_stmt_bind_param($stmt, "s", $valeur);
+                    mysqli_stmt_execute($stmt);
+                    mysqli_stmt_bind_result($stmt, $count);
+                    mysqli_stmt_fetch($stmt);
+                    mysqli_stmt_close($stmt);
+
+                    if ($count == 0 && !in_array($valeur, $_SESSION['options_suppl'][$type])) {
+                        $_SESSION['options_suppl'][$type][] = $valeur;
+                        echo "<p style='color:green;'>$type ajouté avec succès !</p>";
+                    } else {
+                        echo "<p style='color:red;'>Cette valeur existe déjà.</p>";
+                    }
+                }
+            }
+
+            ?>
+
 
         </div>
     </div>
