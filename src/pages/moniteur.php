@@ -191,7 +191,7 @@ session_start();
                 $serial = $_POST['SERIAL'];
                 $attached_to = $_POST['ATTACHED_TO'];
 
-                // Vérifier SERIAL
+
                 $check_serial = mysqli_prepare($connecte, "SELECT COUNT(*) FROM moniteur WHERE SERIAL = ? AND ID != ?");
                 mysqli_stmt_bind_param($check_serial, "si", $serial, $id);
                 mysqli_stmt_execute($check_serial);
@@ -199,7 +199,7 @@ session_start();
                 mysqli_stmt_fetch($check_serial);
                 mysqli_stmt_close($check_serial);
 
-                // Vérifier ATTACHED_TO seulement si non vide
+
                 $count_attached = 0;
                 if (!empty($attached_to)) {
                     $check_attached = mysqli_prepare($connecte, "SELECT COUNT(*) FROM moniteur WHERE ATTACHED_TO = ? AND ID != ?");
