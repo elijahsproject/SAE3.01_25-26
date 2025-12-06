@@ -27,9 +27,7 @@ session_start();
                 die("Erreur de connexion");
             }
 
-            /* ───────────────────────────────────────────── */
-            /* TRAITEMENT EXPORT CSV             */
-            /* ───────────────────────────────────────────── */
+
             if (isset($_GET['export_csv'])) {
                 header('Content-Type: text/csv; charset=utf-8');
                 header('Content-Disposition: attachment; filename=inventaire_export.csv');
@@ -48,29 +46,20 @@ session_start();
                 exit();
             }
 
-            /* ───────────────────────────────────────────── */
-            /* TRAITEMENT IMPORT CSV             */
-            /* ───────────────────────────────────────────── */
             if (isset($_POST['import_csv'])) {
                 if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] == 0) {
                     $filename = $_FILES['csvFile']['tmp_name'];
                     $handle = fopen($filename, "r");
-                    
-                    // Sauter l'en-tête
                     fgetcsv($handle);
-
                     while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                        // Attention : l'ordre des colonnes dans le CSV doit être EXACTEMENT celui ci-dessous
                         $sql = "INSERT INTO inventaire (NAME, SERIAL, MANUFACTURER, MODEL, TYPE, CPU, RAM_MB, DISK_GB, OS, DOMAIN, LOCATION, BUILDING, ROOM, MACADDR, PURCHASE_DATE, WARRANTY_END) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                        
+
                         $stmt = mysqli_prepare($connecte, $sql);
-                        
-                        // Types : s=string, i=integer. RAM et DISK sont des int, le reste string.
-                        mysqli_stmt_bind_param($stmt, "ssssssiiissssssss", 
-                            $data[0], $data[1], $data[2], $data[3], 
-                            $data[4], $data[5], $data[6], $data[7], 
-                            $data[8], $data[9], $data[10], $data[11], 
-                            $data[12], $data[13], $data[14], $data[15]
+                        mysqli_stmt_bind_param($stmt, "ssssssiiissssssss",
+                                $data[0], $data[1], $data[2], $data[3],
+                                $data[4], $data[5], $data[6], $data[7],
+                                $data[8], $data[9], $data[10], $data[11],
+                                $data[12], $data[13], $data[14], $data[15]
                         );
                         mysqli_stmt_execute($stmt);
                     }
@@ -90,16 +79,51 @@ session_start();
                     echo '<input type="hidden" name="id" value="'.$resultat['ID'].'">';
 
                     echo '<table><tbody>';
-
                     echo '<tr><td>NOM</td><td><input type="text" name="NAME" value="'.$resultat['NAME'].'"></td></tr>';
                     echo '<tr><td>NUMÉRO DE SÉRIE</td><td><input type="text" name="SERIAL" value="'.$resultat['SERIAL'].'"></td></tr>';
-                    echo '<tr><td>FABRICANT</td><td><input type="text" name="MANUFACTURER" value="'.$resultat['MANUFACTURER'].'"></td></tr>';
+
+                    echo '<tr><td>MANUFACTURER</td><td><select name="MANUFACTURER">';
+                    $result_man = mysqli_query($connecte, "SELECT DISTINCT MANUFACTURER FROM inventaire ORDER BY MANUFACTURER ASC");
+                    while ($man = mysqli_fetch_assoc($result_man)) {
+                        $selected = (isset($resultat) && $resultat['MANUFACTURER'] == $man['MANUFACTURER']) ? 'selected' : '';
+                        echo '<option value="'.htmlspecialchars($man['MANUFACTURER']).'" '.$selected.'>'.htmlspecialchars($man['MANUFACTURER']).'</option>';
+                    }
+                    if (isset($_SESSION['options_suppl']['MANUFACTURER'])) {
+                        foreach ($_SESSION['options_suppl']['MANUFACTURER'] as $man_supp) {
+                            $selected = (isset($resultat) && $resultat['MANUFACTURER'] == $man_supp) ? 'selected' : '';
+                            echo '<option value="'.htmlspecialchars($man_supp).'" '.$selected.'>'.htmlspecialchars($man_supp).'</option>';
+                        }
+                    }
+
+                    echo '<option value="">--Autre--</option>';
+                    echo '</select></td></tr>';
+
                     echo '<tr><td>MODÈLE</td><td><input type="text" name="MODEL" value="'.$resultat['MODEL'].'"></td></tr>';
                     echo '<tr><td>TYPE</td><td><input type="text" name="TYPE" value="'.$resultat['TYPE'].'"></td></tr>';
                     echo '<tr><td>CPU</td><td><input type="text" name="CPU" value="'.$resultat['CPU'].'"></td></tr>';
                     echo '<tr><td>RAM (MB)</td><td><input type="number" name="RAM_MB" value="'.$resultat['RAM_MB'].'"></td></tr>';
                     echo '<tr><td>STOCKAGE (GB)</td><td><input type="number" name="DISK_GB" value="'.$resultat['DISK_GB'].'"></td></tr>';
-                    echo '<tr><td>OS</td><td><input type="text" name="OS" value="'.$resultat['OS'].'"></td></tr>';
+
+                    echo '<tr><td>OS</td><td><select name="OS">';
+
+                    $result_os = mysqli_query($connecte, "SELECT DISTINCT OS FROM inventaire ORDER BY OS ASC");
+                    while ($os = mysqli_fetch_assoc($result_os)) {
+                        $selected = (isset($resultat) && $resultat['OS'] == $os['OS']) ? 'selected' : '';
+                        echo '<option value="'.htmlspecialchars($os['OS']).'" '.$selected.'>'.htmlspecialchars($os['OS']).'</option>';
+                    }
+
+
+                    if (isset($_SESSION['options_suppl']['OS'])) {
+                        foreach ($_SESSION['options_suppl']['OS'] as $os_supp) {
+                            $selected = (isset($resultat) && $resultat['OS'] == $os_supp) ? 'selected' : '';
+                            echo '<option value="'.htmlspecialchars($os_supp).'" '.$selected.'>'.htmlspecialchars($os_supp).'</option>';
+                        }
+                    }
+
+                    echo '<option value="">--Autre--</option>';
+                    echo '</select></td></tr>';
+
+
                     echo '<tr><td>DOMAINE</td><td><input type="text" name="DOMAIN" value="'.$resultat['DOMAIN'].'"></td></tr>';
                     echo '<tr><td>LOCATION</td><td><input type="text" name="LOCATION" value="'.$resultat['LOCATION'].'"></td></tr>';
                     echo '<tr><td>BÂTIMENT</td><td><input type="text" name="BUILDING" value="'.$resultat['BUILDING'].'"></td></tr>';
@@ -114,17 +138,27 @@ session_start();
                 }
             }
 
-
-
             if (isset($_POST['supprimer'])) {
                 $id = intval($_POST['suppr_id']);
-                $suprimer = mysqli_query($connecte, "DELETE FROM inventaire WHERE id=$id");
 
-                if ($suprimer) {
-                    header('Location: gestion.php');
-                    exit;
+                $res = mysqli_query($connecte, "SELECT MODEL FROM inventaire WHERE ID=$id");
+                if ($res && mysqli_num_rows($res) > 0) {
+                    $model = mysqli_fetch_assoc($res)['MODEL'];
+
+
+                    mysqli_query($connecte, "DELETE FROM moniteur WHERE MODEL='" . mysqli_real_escape_string($connecte, $model) . "'");
+
+
+                    $supprimer = mysqli_query($connecte, "DELETE FROM inventaire WHERE ID=$id");
+
+                    if ($supprimer) {
+                        header('Location: gestion.php');
+                        exit;
+                    } else {
+                        echo "<p style='color:red;'>Erreur lors de la suppression de l'unité centrale.</p>";
+                    }
                 } else {
-                    echo "Erreur lors de la suppression de l'unité centrale.";
+                    echo "<p style='color:red;'>Équipement introuvable.</p>";
                 }
             }
 
@@ -136,13 +170,49 @@ session_start();
 
                 echo '<tr><td>NAME</td><td><input type="text" name="NAME" value=""></td></tr>';
                 echo '<tr><td>SERIAL</td><td><input type="text" name="SERIAL" value=""></td></tr>';
-                echo '<tr><td>MANUFACTURER</td><td><input type="text" name="MANUFACTURER" value=""></td></tr>';
+
+                echo '<tr><td>MANUFACTURER</td><td><select name="MANUFACTURER">';
+
+                $result_man = mysqli_query($connecte, "SELECT DISTINCT MANUFACTURER FROM inventaire ORDER BY MANUFACTURER ASC");
+                while ($man = mysqli_fetch_assoc($result_man)) {
+                    $selected = (isset($resultat) && $resultat['MANUFACTURER'] == $man['MANUFACTURER']) ? 'selected' : '';
+                    echo '<option value="'.htmlspecialchars($man['MANUFACTURER']).'" '.$selected.'>'.htmlspecialchars($man['MANUFACTURER']).'</option>';
+                }
+
+                if (isset($_SESSION['options_suppl']['MANUFACTURER'])) {
+                    foreach ($_SESSION['options_suppl']['MANUFACTURER'] as $man_supp) {
+                        $selected = (isset($resultat) && $resultat['MANUFACTURER'] == $man_supp) ? 'selected' : '';
+                        echo '<option value="'.htmlspecialchars($man_supp).'" '.$selected.'>'.htmlspecialchars($man_supp).'</option>';
+                    }
+                }
+
+                echo '<option value="">--Autre--</option>';
+                echo '</select></td></tr>';
                 echo '<tr><td>MODEL</td><td><input type="text" name="MODEL" value=""></td></tr>';
                 echo '<tr><td>TYPE</td><td><input type="text" name="TYPE" value=""></td></tr>';
                 echo '<tr><td>CPU</td><td><input type="text" name="CPU" value=""></td></tr>';
                 echo '<tr><td>RAM_MB</td><td><input type="number" name="RAM_MB" value=""></td></tr>';
                 echo '<tr><td>DISK_GB</td><td><input type="number" name="DISK_GB" value=""></td></tr>';
-                echo '<tr><td>OS</td><td><input type="text" name="OS" value=""></td></tr>';
+
+                echo '<tr><td>OS</td><td><select name="OS">';
+
+                $result_os = mysqli_query($connecte, "SELECT DISTINCT OS FROM inventaire ORDER BY OS ASC");
+                while ($os = mysqli_fetch_assoc($result_os)) {
+                    $selected = (isset($resultat) && $resultat['OS'] == $os['OS']) ? 'selected' : '';
+                    echo '<option value="'.htmlspecialchars($os['OS']).'" '.$selected.'>'.htmlspecialchars($os['OS']).'</option>';
+                }
+
+                if (isset($_SESSION['options_suppl']['OS'])) {
+                    foreach ($_SESSION['options_suppl']['OS'] as $os_supp) {
+                        $selected = (isset($resultat) && $resultat['OS'] == $os_supp) ? 'selected' : '';
+                        echo '<option value="'.htmlspecialchars($os_supp).'" '.$selected.'>'.htmlspecialchars($os_supp).'</option>';
+                    }
+                }
+
+                echo '<option value="">--Autre--</option>';
+                echo '</select></td></tr>';
+
+
                 echo '<tr><td>DOMAIN</td><td><input type="text" name="DOMAIN" value=""></td></tr>';
                 echo '<tr><td>LOCATION</td><td><input type="text" name="LOCATION" value=""></td></tr>';
                 echo '<tr><td>BUILDING</td><td><input type="text" name="BUILDING" value=""></td></tr>';
@@ -159,24 +229,41 @@ session_start();
             }
 
 
+            $message = "";
             if (isset($_POST['ajouter_bd'])) {
+                // Vérifier si le SERIAL existe déjà
+                $check_sql = "SELECT COUNT(*) as count FROM inventaire WHERE SERIAL = ?";
+                $check_stmt = mysqli_prepare($connecte, $check_sql);
+                mysqli_stmt_bind_param($check_stmt, "s", $_POST['SERIAL']);
+                mysqli_stmt_execute($check_stmt);
+                mysqli_stmt_bind_result($check_stmt, $count);
+                mysqli_stmt_fetch($check_stmt);
+                mysqli_stmt_close($check_stmt);
 
-                $sql = "INSERT INTO inventaire (NAME, SERIAL, MANUFACTURER, MODEL, TYPE, CPU, RAM_MB, DISK_GB, OS, DOMAIN, LOCATION, BUILDING, ROOM, MACADDR, PURCHASE_DATE, WARRANTY_END)VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-                $stmt = mysqli_prepare($connecte, $sql);
-                mysqli_stmt_bind_param($stmt, "ssssssiiissssssss",
-                        $_POST['NAME'], $_POST['SERIAL'], $_POST['MANUFACTURER'], $_POST['MODEL'],
-                        $_POST['TYPE'], $_POST['CPU'], $_POST['RAM_MB'], $_POST['DISK_GB'],
-                        $_POST['OS'], $_POST['DOMAIN'], $_POST['LOCATION'], $_POST['BUILDING'],
-                        $_POST['ROOM'], $_POST['MACADDR'], $_POST['PURCHASE_DATE'], $_POST['WARRANTY_END']
-                );
-
-                if (mysqli_stmt_execute($stmt)) {
-                    echo "<p style='color:green;'>Équipement ajouté avec succès !</p>";
+                if ($count > 0) {
+                    $message = "<p style='color:red;'>Erreur : ce numéro de série existe déjà !</p>";
                 } else {
-                    echo "<p style='color:red;'>Erreur lors de l'ajout : ".mysqli_error($connecte)."</p>";
+                    // insertion
+                    $sql = "INSERT INTO inventaire (NAME, SERIAL, MANUFACTURER, MODEL, TYPE, CPU, RAM_MB, DISK_GB, OS, DOMAIN, LOCATION, BUILDING, ROOM, MACADDR, PURCHASE_DATE, WARRANTY_END) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    $stmt = mysqli_prepare($connecte, $sql);
+                    mysqli_stmt_bind_param($stmt, "ssssssiissssssss",
+                            $_POST['NAME'], $_POST['SERIAL'], $_POST['MANUFACTURER'], $_POST['MODEL'],
+                            $_POST['TYPE'], $_POST['CPU'], $_POST['RAM_MB'], $_POST['DISK_GB'],
+                            $_POST['OS'], $_POST['DOMAIN'], $_POST['LOCATION'], $_POST['BUILDING'],
+                            $_POST['ROOM'], $_POST['MACADDR'], $_POST['PURCHASE_DATE'], $_POST['WARRANTY_END']
+                    );
+
+                    if (mysqli_stmt_execute($stmt)) {
+                        $message = "<p style='color:green;'>Équipement ajouté avec succès !</p>";
+                    } else {
+                        $message = "<p style='color:red;'>Erreur lors de l'ajout : ".mysqli_error($connecte)."</p>";
+                    }
                 }
             }
+            echo $message;
+
+
 
 
 
