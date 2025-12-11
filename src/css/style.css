@@ -436,24 +436,17 @@ p b {
     z-index: 1;
 }
 
-.formulaire {
-    margin: 0 auto; /* centre le formulaire dans son conteneur */
-}
-
-/* Centrer le contenu général dans .contenu */
-.contenu {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* centre les enfants horizontalement */
-    gap: 30px;
-    padding: 30px;
-}
-
-
 .wrapper_stat {
     min-height: 100vh; /* ok pour permettre au contenu de dépasser */
     display: flex;
     flex-direction: column;
 }
 
-
+.intro-text {
+    font-size: 1.1em;
+    color: #444;
+    text-align: center;
+    line-height: 1.6em;
+    max-width: 800px;
+    margin: 0 auto 25px auto;
+}

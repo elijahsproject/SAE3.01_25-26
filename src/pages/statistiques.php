@@ -17,8 +17,11 @@ session_start();
 
         <div class="contenu_index">
             <h1>Statistiques du parc informatique</h1>
-
-            <!-- Graphiques R -->
+            <div class="box"
+                <p class = "intro-text">Cette page a pour objectif de proposer une vue d’ensemble claire et interactive du parc informatique à travers différentes statistiques et représentations graphiques.
+                    Elle permet d’analyser l’état du matériel, son évolution, sa répartition et son utilisation, afin de faciliter le diagnostic et la prise de décision dans la gestion du parc.
+                    Les données sont issues des fichiers d’inventaire et des journaux de connexion étudiés dans le cadre de ce projet.</p>
+            </div>
             <div class="box graph-container">
                 <div class="chart">
                     <h3>Distribution de l'âge des machines</h3>
