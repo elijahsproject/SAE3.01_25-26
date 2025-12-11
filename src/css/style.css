@@ -26,8 +26,10 @@ header {
     background-color: #ffffff;
     padding: 20px;
     text-align: center;
-    position: relative;
+    position: relative; /* reste dans le flux */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10; /* au-dessus du contenu si nécessaire */
+    height: 80px; /* hauteur fixe du header */
 }
 
 header h1 {
@@ -43,6 +45,7 @@ header a {
     color: #4d15da;
     font-weight: bold;
 }
+
 header h2 {
     position: absolute;
     bottom: 10px;
@@ -188,19 +191,17 @@ video {
 }
 
 
+/* Contenu principal */
 .contenu_index {
-    flex: 1;
-    padding: 30px;
-    gap: 60px;
+    flex: 1 1 auto; /* permet de grandir correctement */
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-
+    align-items: center; /* centre horizontalement le contenu */
+    gap: 60px;
+    padding: 30px; /* espace interne */
+    margin-top: 20px; /* espace sous le header */
+    overflow-y: auto; /* scroll si nécessaire */
     overflow-x: hidden;
-    overflow-y: scroll;
-
-    padding-top: 250px;
 }
 
 /*Boite Ajout*/
@@ -364,6 +365,95 @@ a:hover {
     background-color: #4d15da;
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.box {
+    background: white;
+    padding: 20px;
+    margin-bottom: 25px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+
+select {
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    width: 100%;
+    background: #f0f0f0;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+}
+
+input[type=submit] {
+    padding: 10px 15px;
+    background: #d0d0d0;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+input[type=submit]:hover {
+    background: #bababa;
+}
+
+p b {
+    color: #444;
+}
+
+/* Centrer les images dans .chart */
+.chart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* centre horizontalement le contenu */
+    justify-content: center; /* centre verticalement si nécessaire */
+    max-width: 600px;
+    margin: 15px auto; /* centre le conteneur lui-même */
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    text-align: center; /* pour le texte sous l'image */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.chart img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    display: block;
+    margin: 0 auto; /* centre l'image dans son conteneur */
+}
+
+/* Centrer le formulaire */
+.conteneur_connexion {
+    display: flex;
+    justify-content: center; /* centre horizontalement */
+    align-items: center;     /* centre verticalement */
+    min-height: 100vh;       /* pour centrer sur toute la hauteur de l’écran */
+    position: relative;
+    z-index: 1;
+}
+
+.formulaire {
+    margin: 0 auto; /* centre le formulaire dans son conteneur */
+}
+
+/* Centrer le contenu général dans .contenu */
+.contenu {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* centre les enfants horizontalement */
+    gap: 30px;
+    padding: 30px;
+}
+
+
+.wrapper_stat {
+    min-height: 100vh; /* ok pour permettre au contenu de dépasser */
+    display: flex;
+    flex-direction: column;
 }
 
 

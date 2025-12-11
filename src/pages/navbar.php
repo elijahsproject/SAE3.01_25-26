@@ -2,7 +2,8 @@
 echo "<nav> <ul>";
 
 
-echo '<li><a href="accueil.php">Page principale</a></li><li><a href="inventaire.php">Inventaire</a></li>';
+echo '<li><a href="accueil.php">Page principale</a></li><li><a href="inventaire.php">Inventaire</a></li><li><a href="statistiques.php">Statistiques</a></li>';
+;
 
 if (isset($_SESSION['login'])
     && $_SESSION['login'] != 'sysadmin'
