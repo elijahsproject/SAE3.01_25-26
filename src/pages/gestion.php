@@ -141,26 +141,55 @@ session_start();
             if (isset($_POST['supprimer'])) {
                 $id = intval($_POST['suppr_id']);
 
-                $res = mysqli_query($connecte, "SELECT MODEL FROM inventaire WHERE ID=$id");
+                $res = mysqli_query($connecte, "SELECT * FROM inventaire WHERE ID=$id");
+
                 if ($res && mysqli_num_rows($res) > 0) {
-                    $model = mysqli_fetch_assoc($res)['MODEL'];
+                    $equipement = mysqli_fetch_assoc($res);
+                    $sql_rebut = "
+            INSERT INTO rebut_devices
+            (NAME, SERIAL, MANUFACTURER, MODEL, TYPE, CPU, RAM_MB, DISK_GB, OS, DOMAIN, LOCATION, BUILDING, ROOM, MACADDR, PURCHASE_DATE, WARRANTY_END)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ";
 
+                    $stmt = mysqli_prepare($connecte, $sql_rebut);
+                    mysqli_stmt_bind_param(
+                            $stmt,
+                            "ssssssiissssssss",
+                            $equipement['NAME'],
+                            $equipement['SERIAL'],
+                            $equipement['MANUFACTURER'],
+                            $equipement['MODEL'],
+                            $equipement['TYPE'],
+                            $equipement['CPU'],
+                            $equipement['RAM_MB'],
+                            $equipement['DISK_GB'],
+                            $equipement['OS'],
+                            $equipement['DOMAIN'],
+                            $equipement['LOCATION'],
+                            $equipement['BUILDING'],
+                            $equipement['ROOM'],
+                            $equipement['MACADDR'],
+                            $equipement['PURCHASE_DATE'],
+                            $equipement['WARRANTY_END']
+                    );
 
-                    mysqli_query($connecte, "DELETE FROM moniteur WHERE MODEL='" . mysqli_real_escape_string($connecte, $model) . "'");
+                    if (mysqli_stmt_execute($stmt)) {
 
+                        $model = mysqli_real_escape_string($connecte, $equipement['MODEL']);
+                        mysqli_query($connecte, "DELETE FROM moniteur WHERE MODEL='$model'");
 
-                    $supprimer = mysqli_query($connecte, "DELETE FROM inventaire WHERE ID=$id");
+                        mysqli_query($connecte, "DELETE FROM inventaire WHERE ID=$id");
 
-                    if ($supprimer) {
                         header('Location: gestion.php');
                         exit;
                     } else {
-                        echo "<p style='color:red;'>Erreur lors de la suppression de l'unité centrale.</p>";
+                        echo "<p style='color:red;'>Erreur lors de l'ajout au rebut.</p>";
                     }
                 } else {
                     echo "<p style='color:red;'>Équipement introuvable.</p>";
                 }
             }
+
 
 
             if (isset($_POST['ajout'])) {

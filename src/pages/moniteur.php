@@ -108,10 +108,41 @@ session_start();
 
             if (isset($_POST['supprimer'])) {
                 $id = intval($_POST['suppr_id']);
-                mysqli_query($connecte, "DELETE FROM moniteur WHERE ID=$id");
-                header("Location: moniteur.php");
-                exit;
+
+                $res = mysqli_query($connecte, "SELECT * FROM moniteur WHERE ID=$id");
+
+                if ($res && mysqli_num_rows($res) > 0) {
+                    $m = mysqli_fetch_assoc($res);
+
+                    $sql = "INSERT INTO rebut_moniteur 
+        (SERIAL, MANUFACTURER, MODEL, SIZE_INCH, RESOLUTION, CONNECTOR, ATTACHED_TO)
+        VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+                    $stmt = mysqli_prepare($connecte, $sql);
+                    mysqli_stmt_bind_param(
+                            $stmt,
+                            "sssisss",
+                            $m['SERIAL'],
+                            $m['MANUFACTURER'],
+                            $m['MODEL'],
+                            $m['SIZE_INCH'],
+                            $m['RESOLUTION'],
+                            $m['CONNECTOR'],
+                            $m['ATTACHED_TO']
+                    );
+
+                    if (mysqli_stmt_execute($stmt)) {
+                        mysqli_query($connecte, "DELETE FROM moniteur WHERE ID=$id");
+                        header("Location: moniteur.php");
+                        exit;
+                    } else {
+                        echo "<p style='color:red;'>Erreur lors de l’ajout au rebut.</p>";
+                    }
+                } else {
+                    echo "<p style='color:red;'>Moniteur introuvable.</p>";
+                }
             }
+
 
             if (isset($_POST['ajout'])) {
 
