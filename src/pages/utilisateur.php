@@ -23,33 +23,73 @@ session_start();
             }
 
             if (isset($_POST['ajout'])) {
-                echo '<h2>Ajouter un technicien</h2>';
+                echo '<h2>Ajouter un utilisateur</h2>';
                 echo '<form method="post">';
                 echo '<table>';
-                echo '<tr><td>Login</td><td><input type="text" name="login"></td></tr>';
-                echo '<tr><td>Password</td><td><input type="text" name="password"></td></tr>';
-                echo '<tr><td colspan="2"><button type="submit" name="ajouter_bd">Ajouter</button></td></tr>';
-                echo '<tr><td colspan="2"><button><a href="utilisateur.php">Annuler</a></button></td></tr>';
+
+                echo '<tr>
+            <td>Login</td>
+            <td><input type="text" name="login" required></td>
+          </tr>';
+
+                echo '<tr>
+            <td>Password</td>
+            <td><input type="password" name="password" required></td>
+          </tr>';
+
+                echo '<tr>
+            <td>Groupe</td>
+            <td>
+                <select name="role" required>
+                    <option value="technicien">Technicien</option>
+                    <option value="sysadmin">Admin Système</option>
+                </select>
+            </td>
+          </tr>';
+
+                echo '<tr>
+            <td colspan="2">
+                <button type="submit" name="ajouter_bd">Ajouter</button>
+            </td>
+          </tr>';
+
+                echo '<tr>
+            <td colspan="2">
+                <a href="utilisateur.php">Annuler</a>
+            </td>
+          </tr>';
+
                 echo '</table>';
                 echo '</form>';
             }
 
+
             // --- Confirmation ajout ---
             if (isset($_POST['ajouter_bd'])) {
-                $login = $_POST['login'];
-                $password = $_POST['password'];
 
-                $sql = "INSERT INTO user (login, password) VALUES (?, ?)";
+                $login    = $_POST['login'];
+                $password = $_POST['password'];
+                $role     = $_POST['role'];
+
+                // Sécurité : on bloque adminweb
+                if ($role === 'adminweb') {
+                    echo "<p style='color:red;'>Création d'un admin web interdite.</p>";
+                    exit;
+                }
+
+                $sql = "INSERT INTO user (login, password, role) VALUES (?, ?, ?)";
                 $stmt = mysqli_prepare($connecte, $sql);
-                mysqli_stmt_bind_param($stmt, "ss", $login, $password);
+                mysqli_stmt_bind_param($stmt, "sss", $login, $password, $role);
 
                 if (mysqli_stmt_execute($stmt)) {
-                    echo "<p style='color:green;'>Technicien ajouté avec succès !</p>";
+                    echo "<p style='color:green;'>Utilisateur ajouté avec succès ($role) !</p>";
                 } else {
                     echo "<p style='color:red;'>Erreur lors de l'ajout : " . mysqli_error($connecte) . "</p>";
                 }
+
                 mysqli_stmt_close($stmt);
             }
+
 
             if (isset($_POST['modifier'])) {
                 $id = intval($_POST['modif_id']);

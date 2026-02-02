@@ -57,34 +57,38 @@ else{
     echo"<br>";
 }
 
-if(isset($_POST['Login'], $_POST['MotDePasse'])){
+if (isset($_POST['Login'], $_POST['MotDePasse'])) {
+
     $login = $_POST['Login'];
-    $mdp = $_POST['MotDePasse'];
-    $sql = "SELECT * FROM user WHERE login = ? and password = ?";
+    $mdp   = $_POST['MotDePasse'];
+
+    $sql = "SELECT id, login, role FROM user WHERE login = ? AND password = ?";
     $requete = mysqli_prepare($connecte, $sql);
     mysqli_stmt_bind_param($requete, 'ss', $login, $mdp);
     mysqli_stmt_execute($requete);
     $resultat = mysqli_stmt_get_result($requete);
 
     if (mysqli_num_rows($resultat) === 1) {
+
+        $user = mysqli_fetch_assoc($resultat);
+
         $ip = $_SERVER['REMOTE_ADDR'];
         $agent = $_SERVER['HTTP_USER_AGENT'];
         $dateConnexion = date("Y-m-d H:i:s");
 
         $sqlLog = "INSERT INTO logs_connexions (login, ip, user_agent, date_connexion, statut)
                    VALUES (?, ?, ?, ?, 'SUCCES')";
-
         $stmtLog = mysqli_prepare($connecte, $sqlLog);
         mysqli_stmt_bind_param($stmtLog, 'ssss', $login, $ip, $agent, $dateConnexion);
         mysqli_stmt_execute($stmtLog);
 
-        $_SESSION['log_id'] = mysqli_insert_id($connecte);
-
-        $_SESSION['login'] = $login;
-        $_SESSION['mdp'] = $mdp;
+        $_SESSION['login'] = $user['login'];
+        $_SESSION['role']  = $user['role'];
+        $_SESSION['user_id'] = $user['id'];
 
         header("Location: accueil.php");
+        exit;
     }
-
 }
+
 ?>
