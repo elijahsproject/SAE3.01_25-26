@@ -24,26 +24,26 @@ session_start();
             </div>
             <div class="box graph-container">
                 <div class="chart">
-                    <h3>Distribution de l'âge des machines</h3>
+                    <h2>Distribution de l'âge des machines</h2>
                     <img src="../img/age_machines.png" alt="Histogramme âge machines">
                     <p>Ce graphique montre la répartition des machines selon leur âge en années.</p>
                 </div>
                 <br>
                 <div class="chart">
-                    <h3>Durée moyenne de connexion par utilisateur</h3>
+                    <h2>Durée moyenne de connexion par utilisateur</h2>
                     <img src="../img/temps_connexion.png" alt="Durée moyenne de connexion">
                     <p>Durée moyenne de connexion par utilisateur sur la période analysée.</p>
                 </div>
 
                 <br>
                 <div class="chart">
-                    <h3>Répartition des machines par OS</h3>
+                    <h2>Répartition des machines par OS</h2>
                     <img src="../img/os_distribution.png" alt="Répartition OS">
                     <p>Nombre de machines par système d'exploitation.</p>
                 </div>
                 <br>
                 <div class="chart">
-                    <h3>Statut de garantie des machines</h3>
+                    <h2>Statut de garantie des machines</h2>
                     <img src="../img/garantie_status.png" alt="Machines hors/sous garantie">
                     <p>Nombre de machines sous garantie vs machines hors garantie.</p>
                 </div>
@@ -98,7 +98,7 @@ session_start();
 
             <div class="box">
                 <form method="POST">
-                    <h3>Répartition des machines par OS</h3>
+                    <h2>Répartition des machines par OS</h2>
                     <select name="os">
                         <option value="">-- Choisir un OS --</option>
                         <?php foreach ($allOS as $os) {
@@ -107,7 +107,7 @@ session_start();
                         } ?>
                     </select>
 
-                    <h3>Répartition des machines par campus</h3>
+                    <h2>Répartition des machines par campus</h2>
                     <select name="campus">
                         <option value="">-- Choisir un campus --</option>
                         <?php
@@ -121,7 +121,7 @@ session_start();
                         ?>
                     </select>
 
-                    <h3>Répartition des machines par bâtiment</h3>
+                    <h2>Répartition des machines par bâtiment</h2>
                     <select name="building">
                         <option value="">-- Choisir un bâtiment --</option>
                         <?php
@@ -135,7 +135,7 @@ session_start();
                         ?>
                     </select>
 
-                    <h3>Répartition des machines par salle</h3>
+                    <h2>Répartition des machines par salle</h2>
                     <select name="room">
                         <option value="">-- Choisir une salle --</option>
                         <?php
@@ -149,10 +149,10 @@ session_start();
                         ?>
                     </select>
 
-                    <h3>Pourcentage de machines ayant plus de X années</h3>
+                    <h2>Pourcentage de machines ayant plus de X années</h2>
                     <input type="number" name="age_years" value="<?php echo $X_years; ?>">
 
-                    <h3>Pourcentage de machines ayant une garantie expirant dans N jours</h3>
+                    <h2>Pourcentage de machines ayant une garantie expirant dans N jours</h2>
                     <input type="number" name="exp_days" value="<?php echo $N_days; ?>">
 
                     <input type="submit" value="Calculer">

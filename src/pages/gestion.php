@@ -17,7 +17,9 @@ session_start();
         <?php include("navbar.php"); ?>
         <div class="contenu">
             <div class="gestion-nav">
-                <a href="gestion.php" class="gestion-btn gestion-btn-active">Unités centrales</a>
+                <span class="gestion-btn gestion-btn-active" aria-current="page">
+                    Unités centrales
+                </span>
                 <a href="moniteur.php" class="gestion-btn">Moniteurs</a>
             </div>
             <?php

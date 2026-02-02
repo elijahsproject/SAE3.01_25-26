@@ -22,12 +22,16 @@ session_start();
             <div class="conteneur_connexion">
                 <div class="formulaire">
                     <div class="logo">
-                        <img src="../img/logo.png" alt="Logo" class="image-logo">
+                        <img src="../img/logo.png" alt="Logo de l’application de gestion du parc informatique" class="image-logo">
                     </div>
                     <h1 class="nom-entreprise">Nom Appli</h1>
                     <form method="post">
+                        <label for="Login" class="sr-only">Login</label>
                         <input type="text" name="Login" id="Login" placeholder="Login" class="champ">
+
+                        <label for="MotDePasse" class="sr-only">Mot de passe</label>
                         <input type="password" name="MotDePasse" id="MotDePasse" placeholder="Mot de passe" class="champ">
+
                         <button type="submit" class="bouton">Connexion</button>
                     </form>
                 </div>
