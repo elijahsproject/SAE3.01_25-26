@@ -1,5 +1,17 @@
 <?php
 session_start();
+
+if (!isset($_SESSION['role'])) {
+    header("Location: accueil.php");
+    exit;
+}
+
+if ($_SESSION['role'] !== 'adminweb') {
+    header("Location: accueil.php");
+    exit;
+}
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -55,7 +67,7 @@ session_start();
 
                 echo '<tr>
             <td colspan="2">
-                <a href="utilisateur.php">Annuler</a>
+                <a href="utilisateur.php" style="color: rgb(0, 0, 0);" ;="">Annuler</a>
             </td>
           </tr>';
 

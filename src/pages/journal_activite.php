@@ -1,6 +1,16 @@
 <?php
 session_start();
 
+if (!isset($_SESSION['role'])) {
+    header("Location: accueil.php");
+    exit;
+}
+
+if ($_SESSION['role'] !== 'sysadmin') {
+    header("Location: accueil.php");
+    exit;
+}
+
 
 $connecte = mysqli_connect("localhost", "sae2025", "!sae2025!", "rpiBD");
 if (!$connecte) {

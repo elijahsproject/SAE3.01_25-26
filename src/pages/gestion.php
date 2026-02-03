@@ -1,5 +1,15 @@
 <?php
 session_start();
+if (!isset($_SESSION['role'])) {
+    header("Location: accueil.php");
+    exit;
+}
+if ($_SESSION['role'] !== 'technicien' && $_SESSION['role'] !== 'adminweb') {
+    header("Location: accueil.php");
+    exit;
+}
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
