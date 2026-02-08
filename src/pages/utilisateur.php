@@ -33,28 +33,52 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'adminweb') {
                 echo '<form method="post"><table>';
 
                 echo '<tr>
-                        <td><label>Login</label></td>
-                        <td><input type="text" name="login" required></td>
-                      </tr>';
+            <th scope="row">
+                <label for="login">Login</label>
+            </th>
+            <td>
+                <input type="text" id="login" name="login" required>
+            </td>
+          </tr>';
 
                 echo '<tr>
-                        <td><label>Mot de passe</label></td>
-                        <td><input type="password" name="password" required></td>
-                      </tr>';
+            <th scope="row">
+                <label for="password">Mot de passe</label>
+            </th>
+            <td>
+                <input type="password" id="password" name="password" required>
+            </td>
+          </tr>';
 
                 echo '<tr>
-                        <td><label>Groupe</label></td>
-                        <td>
-                            <select name="role" required>
-                                <option value="technicien">Technicien</option>
-                                <option value="sysadmin">Admin Système</option>
-                            </select>
-                        </td>
-                      </tr>';
+            <th scope="row">
+                <label for="role">Groupe</label>
+            </th>
+            <td>
+                <select id="role" name="role" required>
+                    <option value="technicien">Technicien</option>
+                    <option value="sysadmin">Admin Système</option>
+                </select>
+            </td>
+          </tr>';
 
-                echo '<tr><td colspan="2"><button name="ajouter_bd">Ajouter</button></td></tr>';
+                echo '<tr>
+            <td colspan="2">
+                <button name="ajouter_bd">Ajouter</button>
+            </td>
+          </tr>';
+
+                echo '<tr>
+            <td colspan="2">
+                <button type="submit">Annuler</button>
+            </td>
+          </tr>';
+
                 echo '</table></form>';
             }
+
+
+
 
             if (isset($_POST['ajouter_bd'])) {
                 $login = $_POST['login'];
@@ -79,21 +103,46 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'adminweb') {
 
                 echo '<h2>Modifier utilisateur</h2>';
                 echo '<form method="post"><table>';
+
                 echo '<input type="hidden" name="id" value="'.$u['id'].'">';
 
                 echo '<tr>
-                        <td><label>Login</label></td>
-                        <td><input type="text" name="login" value="'.$u['login'].'" required></td>
-                      </tr>';
+            <th scope="row">
+                <label for="login_modif">Login</label>
+            </th>
+            <td>
+                <input type="text" id="login_modif" name="login" value="'.$u['login'].'" required>
+            </td>
+          </tr>';
 
                 echo '<tr>
-                        <td><label>Mot de passe</label></td>
-                        <td><input type="password" name="password" placeholder="Nouveau mdp"></td>
-                      </tr>';
+            <th scope="row">
+                <label for="password_modif">Mot de passe</label>
+            </th>
+            <td>
+                <input type="password" id="password_modif" name="password" placeholder="Nouveau mdp">
+            </td>
+          </tr>';
 
-                echo '<tr><td colspan="2"><button name="mise_a_jour">Modifier</button></td></tr>';
+
+                echo '<tr>
+            <td colspan="2">
+                <button name="mise_a_jour">Modifier</button>
+            </td>
+          </tr>';
+
+
+                echo '<tr>
+            <td colspan="2">
+                <button type="submit">Annuler</button>
+            </td>
+          </tr>';
+
                 echo '</table></form>';
             }
+
+
+
 
             if (isset($_POST['mise_a_jour'])) {
                 $id = intval($_POST['id']);

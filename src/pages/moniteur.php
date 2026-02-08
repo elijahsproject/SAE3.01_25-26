@@ -28,11 +28,14 @@ if ($_SESSION['role'] !== 'technicien' && $_SESSION['role'] !== 'adminweb') {
         <div class="contenu">
 
             <div class="gestion-nav">
-                <span class="gestion-btn gestion-btn-active" aria-current="page">
+                <a href="gestion.php" class="gestion-btn">
                     Unités centrales
+                </a>
+                <span class="gestion-btn gestion-btn-active" aria-current="page">
+                    Moniteurs
                 </span>
-                <a href="moniteur.php" class="gestion-btn gestion-btn-active">Moniteurs</a>
             </div>
+
 
             <?php
             $connecte = mysqli_connect("localhost", "sae2025", "!sae2025!", "rpiBD");
@@ -77,7 +80,6 @@ if ($_SESSION['role'] !== 'technicien' && $_SESSION['role'] !== 'adminweb') {
             }
 
             if (isset($_POST['modifier'])) {
-
                 $id = intval($_POST['modif_id']);
                 $res = mysqli_query($connecte, "SELECT * FROM moniteur WHERE ID=$id");
                 $moniteur = mysqli_fetch_assoc($res);
@@ -88,33 +90,54 @@ if ($_SESSION['role'] !== 'technicien' && $_SESSION['role'] !== 'adminweb') {
                     echo '<input type="hidden" name="id" value="'.$moniteur['ID'].'">';
                     echo '<table><tbody>';
 
-                    echo '<tr><td>SERIAL</td><td><input type="text" name="SERIAL" value="'.$moniteur['SERIAL'].'"></td></tr>';
-                    echo '<tr><td>MANUFACTURER</td><td><input type="text" name="MANUFACTURER" value="'.$moniteur['MANUFACTURER'].'"></td></tr>';
-                    echo '<tr><td>MODEL</td><td><input type="text" name="MODEL" value="'.$moniteur['MODEL'].'"></td></tr>';
-                    echo '<tr><td>SIZE_INCH</td><td><input type="number" name="SIZE_INCH" value="'.$moniteur['SIZE_INCH'].'"></td></tr>';
-                    echo '<tr><td>RESOLUTION</td><td><input type="text" name="RESOLUTION" value="'.$moniteur['RESOLUTION'].'"></td></tr>';
-                    echo '<tr><td>CONNECTOR</td><td><input type="text" name="CONNECTOR" value="'.$moniteur['CONNECTOR'].'"></td></tr>';
+                    echo '<tr><th scope="row"><label for="SERIAL">SERIAL</label></th>
+              <td><input type="text" id="SERIAL" name="SERIAL" value="'.$moniteur['SERIAL'].'"></td></tr>';
 
-                    echo '<tr><td>ATTACHED_TO</td><td>';
-                    echo '<select name="ATTACHED_TO">';
-                    echo '<option value="">-- Non rattaché --</option>';
+                    echo '<tr><th scope="row"><label for="MANUFACTURER">MANUFACTURER</label></th>
+              <td><input type="text" id="MANUFACTURER" name="MANUFACTURER" value="'.$moniteur['MANUFACTURER'].'"></td></tr>';
+
+                    echo '<tr><th scope="row"><label for="MODEL">MODEL</label></th>
+              <td><input type="text" id="MODEL" name="MODEL" value="'.$moniteur['MODEL'].'"></td></tr>';
+
+                    echo '<tr><th scope="row"><label for="SIZE_INCH">SIZE_INCH</label></th>
+              <td><input type="number" id="SIZE_INCH" name="SIZE_INCH" value="'.$moniteur['SIZE_INCH'].'"></td></tr>';
+
+                    echo '<tr><th scope="row"><label for="RESOLUTION">RESOLUTION</label></th>
+              <td><input type="text" id="RESOLUTION" name="RESOLUTION" value="'.$moniteur['RESOLUTION'].'"></td></tr>';
+
+                    echo '<tr><th scope="row"><label for="CONNECTOR">CONNECTOR</label></th>
+              <td><input type="text" id="CONNECTOR" name="CONNECTOR" value="'.$moniteur['CONNECTOR'].'"></td></tr>';
+
+                    echo '<tr><th scope="row"><label for="ATTACHED_TO">ATTACHED_TO</label></th>
+              <td>
+              <select id="ATTACHED_TO" name="ATTACHED_TO">
+                  <option value="">-- Non rattaché --</option>';
 
                     $sql_attached = "SELECT MODEL FROM inventaire ORDER BY MODEL ASC";
                     $res_attached = mysqli_query($connecte, $sql_attached);
-
                     while ($row = mysqli_fetch_assoc($res_attached)) {
                         $mdl = htmlspecialchars($row['MODEL']);
                         $selected = ($mdl == $moniteur['ATTACHED_TO']) ? 'selected' : '';
                         echo "<option value='$mdl' $selected>$mdl</option>";
                     }
 
-                    echo '</select>';
-                    echo '</td></tr>';
+                    echo '</select>
+              </td></tr>';
 
-                    echo '<tr><td colspan="2"><button type="submit" name="mise_a_jour" class="btn-valider">Modifier</button></td></tr>';
-                    echo '</tbody></table></form>';
+                    echo '<tr><td colspan="2">
+                <button type="submit" name="mise_a_jour" class="btn-valider">Modifier</button>
+              </td></tr>';
+
+                    echo '<tr><td colspan="2">
+                <button type="button" onclick="window.location.href=\'moniteur.php\'">Annuler</button>
+              </td></tr>';
+
+                    echo '</tbody></table>';
+                    echo '</form>';
                 }
             }
+
+
 
             if (isset($_POST['supprimer'])) {
                 $id = intval($_POST['suppr_id']);
@@ -155,21 +178,32 @@ if ($_SESSION['role'] !== 'technicien' && $_SESSION['role'] !== 'adminweb') {
 
 
             if (isset($_POST['ajout'])) {
-
                 echo '<h2>Ajouter un moniteur</h2>';
                 echo '<form method="post" class="contenu_modifier">';
                 echo '<table><tbody>';
 
-                echo '<tr><td>SERIAL</td><td><input type="text" name="SERIAL"></td></tr>';
-                echo '<tr><td>MANUFACTURER</td><td><input type="text" name="MANUFACTURER"></td></tr>';
-                echo '<tr><td>MODEL</td><td><input type="text" name="MODEL"></td></tr>';
-                echo '<tr><td>SIZE_INCH</td><td><input type="number" name="SIZE_INCH"></td></tr>';
-                echo '<tr><td>RESOLUTION</td><td><input type="text" name="RESOLUTION"></td></tr>';
-                echo '<tr><td>CONNECTOR</td><td><input type="text" name="CONNECTOR"></td></tr>';
+                echo '<tr><th scope="row"><label for="SERIAL">SERIAL</label></th>
+          <td><input type="text" id="SERIAL" name="SERIAL"></td></tr>';
 
-                echo '<tr><td>ATTACHED_TO</td><td>';
-                echo '<select name="ATTACHED_TO">';
-                echo '<option value="">-- Non rattaché --</option>';
+                echo '<tr><th scope="row"><label for="MANUFACTURER">MANUFACTURER</label></th>
+          <td><input type="text" id="MANUFACTURER" name="MANUFACTURER"></td></tr>';
+
+                echo '<tr><th scope="row"><label for="MODEL">MODEL</label></th>
+          <td><input type="text" id="MODEL" name="MODEL"></td></tr>';
+
+                echo '<tr><th scope="row"><label for="SIZE_INCH">SIZE_INCH</label></th>
+          <td><input type="number" id="SIZE_INCH" name="SIZE_INCH"></td></tr>';
+
+                echo '<tr><th scope="row"><label for="RESOLUTION">RESOLUTION</label></th>
+          <td><input type="text" id="RESOLUTION" name="RESOLUTION"></td></tr>';
+
+                echo '<tr><th scope="row"><label for="CONNECTOR">CONNECTOR</label></th>
+          <td><input type="text" id="CONNECTOR" name="CONNECTOR"></td></tr>';
+
+                echo '<tr><th scope="row"><label for="ATTACHED_TO">ATTACHED_TO</label></th>
+          <td>
+          <select id="ATTACHED_TO" name="ATTACHED_TO">
+              <option value="">-- Non rattaché --</option>';
 
                 $res_attached = mysqli_query($connecte, "SELECT MODEL FROM inventaire ORDER BY MODEL ASC");
                 while ($row = mysqli_fetch_assoc($res_attached)) {
@@ -177,15 +211,21 @@ if ($_SESSION['role'] !== 'technicien' && $_SESSION['role'] !== 'adminweb') {
                     echo "<option value='$mdl'>$mdl</option>";
                 }
 
-                echo '</select>';
-                echo '</td></tr>';
+                echo '</select>
+          </td></tr>';
 
-                echo '<tr><td colspan="2"><button type="submit" name="ajouter_bd" class="btn-valider">Ajouter</button></td></tr>';
-                echo '<tr><td colspan="2"><button type="button" onclick="window.location.href=\'moniteur.php\'">Annuler</button></td></tr>';
+                echo '<tr><td colspan="2">
+            <button type="submit" name="ajouter_bd" class="btn-valider">Ajouter</button>
+          </td></tr>';
+                echo '<tr><td colspan="2">
+            <button type="button" onclick="window.location.href=\'moniteur.php\'">Annuler</button>
+          </td></tr>';
 
                 echo '</tbody></table>';
                 echo '</form>';
             }
+
+
 
 
             if (isset($_POST['ajouter_bd'])) {

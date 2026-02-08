@@ -91,64 +91,85 @@ if ($_SESSION['role'] !== 'technicien' && $_SESSION['role'] !== 'adminweb') {
                     echo '<input type="hidden" name="id" value="'.$resultat['ID'].'">';
 
                     echo '<table><tbody>';
-                    echo '<tr><td>NOM</td><td><input type="text" name="NAME" value="'.$resultat['NAME'].'"></td></tr>';
-                    echo '<tr><td>NUMÉRO DE SÉRIE</td><td><input type="text" name="SERIAL" value="'.$resultat['SERIAL'].'"></td></tr>';
 
-                    echo '<tr><td>MANUFACTURER</td><td><select name="MANUFACTURER">';
+                    echo '<tr><th scope="row"><label for="name">NAME</label></th>
+                  <td><input type="text" id="name" name="NAME" value="'.$resultat['NAME'].'"></td></tr>';
+
+                    echo '<tr><th scope="row"><label for="serial">SERIAL</label></th>
+                  <td><input type="text" id="serial" name="SERIAL" value="'.$resultat['SERIAL'].'"></td></tr>';
+
+                    echo '<tr><th scope="row"><label for="manufacturer">MANUFACTURER</label></th><td>
+                <select name="MANUFACTURER" id="manufacturer">';
+
                     $result_man = mysqli_query($connecte, "SELECT DISTINCT MANUFACTURER FROM inventaire ORDER BY MANUFACTURER ASC");
                     while ($man = mysqli_fetch_assoc($result_man)) {
-                        $selected = (isset($resultat) && $resultat['MANUFACTURER'] == $man['MANUFACTURER']) ? 'selected' : '';
-                        echo '<option value="'.htmlspecialchars($man['MANUFACTURER']).'" '.$selected.'>'.htmlspecialchars($man['MANUFACTURER']).'</option>';
-                    }
-                    if (isset($_SESSION['options_suppl']['MANUFACTURER'])) {
-                        foreach ($_SESSION['options_suppl']['MANUFACTURER'] as $man_supp) {
-                            $selected = (isset($resultat) && $resultat['MANUFACTURER'] == $man_supp) ? 'selected' : '';
-                            echo '<option value="'.htmlspecialchars($man_supp).'" '.$selected.'>'.htmlspecialchars($man_supp).'</option>';
-                        }
+                        $selected = ($resultat['MANUFACTURER'] == $man['MANUFACTURER']) ? 'selected' : '';
+                        echo '<option value="'.htmlspecialchars($man['MANUFACTURER']).'" '.$selected.'>'.
+                                htmlspecialchars($man['MANUFACTURER']).'</option>';
                     }
 
                     echo '<option value="">--Autre--</option>';
                     echo '</select></td></tr>';
 
-                    echo '<tr><td>MODÈLE</td><td><input type="text" name="MODEL" value="'.$resultat['MODEL'].'"></td></tr>';
-                    echo '<tr><td>TYPE</td><td><input type="text" name="TYPE" value="'.$resultat['TYPE'].'"></td></tr>';
-                    echo '<tr><td>CPU</td><td><input type="text" name="CPU" value="'.$resultat['CPU'].'"></td></tr>';
-                    echo '<tr><td>RAM (MB)</td><td><input type="number" name="RAM_MB" value="'.$resultat['RAM_MB'].'"></td></tr>';
-                    echo '<tr><td>STOCKAGE (GB)</td><td><input type="number" name="DISK_GB" value="'.$resultat['DISK_GB'].'"></td></tr>';
+                    echo '<tr><th scope="row"><label for="model">MODEL</label></th>
+                  <td><input type="text" id="model" name="MODEL" value="'.$resultat['MODEL'].'"></td></tr>';
 
-                    echo '<tr><td>OS</td><td><select name="OS">';
+                    echo '<tr><th scope="row"><label for="type">TYPE</label></th>
+                  <td><input type="text" id="type" name="TYPE" value="'.$resultat['TYPE'].'"></td></tr>';
+
+                    echo '<tr><th scope="row"><label for="cpu">CPU</label></th>
+                  <td><input type="text" id="cpu" name="CPU" value="'.$resultat['CPU'].'"></td></tr>';
+
+                    echo '<tr><th scope="row"><label for="ram">RAM_MB</label></th>
+                  <td><input type="number" id="ram" name="RAM_MB" value="'.$resultat['RAM_MB'].'"></td></tr>';
+
+                    echo '<tr><th scope="row"><label for="disk">DISK_GB</label></th>
+                  <td><input type="number" id="disk" name="DISK_GB" value="'.$resultat['DISK_GB'].'"></td></tr>';
+
+                    echo '<tr><th scope="row"><label for="os">OS</label></th><td>
+                <select name="OS" id="os">';
 
                     $result_os = mysqli_query($connecte, "SELECT DISTINCT OS FROM inventaire ORDER BY OS ASC");
                     while ($os = mysqli_fetch_assoc($result_os)) {
-                        $selected = (isset($resultat) && $resultat['OS'] == $os['OS']) ? 'selected' : '';
-                        echo '<option value="'.htmlspecialchars($os['OS']).'" '.$selected.'>'.htmlspecialchars($os['OS']).'</option>';
-                    }
-
-
-                    if (isset($_SESSION['options_suppl']['OS'])) {
-                        foreach ($_SESSION['options_suppl']['OS'] as $os_supp) {
-                            $selected = (isset($resultat) && $resultat['OS'] == $os_supp) ? 'selected' : '';
-                            echo '<option value="'.htmlspecialchars($os_supp).'" '.$selected.'>'.htmlspecialchars($os_supp).'</option>';
-                        }
+                        $selected = ($resultat['OS'] == $os['OS']) ? 'selected' : '';
+                        echo '<option value="'.htmlspecialchars($os['OS']).'" '.$selected.'>'.
+                                htmlspecialchars($os['OS']).'</option>';
                     }
 
                     echo '<option value="">--Autre--</option>';
                     echo '</select></td></tr>';
 
+                    echo '<tr><th scope="row"><label for="domain">DOMAIN</label></th>
+                  <td><input type="text" id="domain" name="DOMAIN" value="'.$resultat['DOMAIN'].'"></td></tr>';
 
-                    echo '<tr><td>DOMAINE</td><td><input type="text" name="DOMAIN" value="'.$resultat['DOMAIN'].'"></td></tr>';
-                    echo '<tr><td>LOCATION</td><td><input type="text" name="LOCATION" value="'.$resultat['LOCATION'].'"></td></tr>';
-                    echo '<tr><td>BÂTIMENT</td><td><input type="text" name="BUILDING" value="'.$resultat['BUILDING'].'"></td></tr>';
-                    echo '<tr><td>SALLE</td><td><input type="text" name="ROOM" value="'.$resultat['ROOM'].'"></td></tr>';
-                    echo '<tr><td>ADRESSE MAC</td><td><input type="text" name="MACADDR" value="'.$resultat['MACADDR'].'"></td></tr>';
+                    echo '<tr><th scope="row"><label for="location">LOCATION</label></th>
+                  <td><input type="text" id="location" name="LOCATION" value="'.$resultat['LOCATION'].'"></td></tr>';
 
-                    echo '<tr><td>DATE D\'ACHAT</td><td><input type="date" name="PURCHASE_DATE" value="'.$resultat['PURCHASE_DATE'].'"></td></tr>';
-                    echo '<tr><td>FIN DE GARANTIE</td><td><input type="date" name="WARRANTY_END" value="'.$resultat['WARRANTY_END'].'"></td></tr>';
+                    echo '<tr><th scope="row"><label for="building">BUILDING</label></th>
+                  <td><input type="text" id="building" name="BUILDING" value="'.$resultat['BUILDING'].'"></td></tr>';
 
-                    echo '<tr><td colspan="2"><button type="submit" name="mise_a_jour" class="btn-valider">Modifier</button></td></tr>';
+                    echo '<tr><th scope="row"><label for="room">ROOM</label></th>
+                  <td><input type="text" id="room" name="ROOM" value="'.$resultat['ROOM'].'"></td></tr>';
+
+                    echo '<tr><th scope="row"><label for="mac">MACADDR</label></th>
+                  <td><input type="text" id="mac" name="MACADDR" value="'.$resultat['MACADDR'].'"></td></tr>';
+
+                    echo '<tr><th scope="row"><label for="purchase">PURCHASE_DATE</label></th>
+                  <td><input type="date" id="purchase" name="PURCHASE_DATE" value="'.$resultat['PURCHASE_DATE'].'"></td></tr>';
+
+                    echo '<tr><th scope="row"><label for="warranty">WARRANTY_END</label></th>
+                  <td><input type="date" id="warranty" name="WARRANTY_END" value="'.$resultat['WARRANTY_END'].'"></td></tr>';
+
+                    echo '<tr><td colspan="2">
+                <button type="submit" name="mise_a_jour" class="btn-valider">Modifier</button>
+              </td></tr>';
+                    echo '<tr><td colspan="2"><button type="button" onclick="window.location.href=\'gestion.php\'">Annuler</button></td></tr>';
+
+
                     echo '</tbody></table></form>';
                 }
             }
+
 
             if (isset($_POST['supprimer'])) {
                 $id = intval($_POST['suppr_id']);
@@ -209,65 +230,81 @@ if ($_SESSION['role'] !== 'technicien' && $_SESSION['role'] !== 'adminweb') {
                 echo '<form method="post" class="contenu_modifier">';
                 echo '<table><tbody>';
 
-                echo '<tr><td>NAME</td><td><input type="text" name="NAME" value=""></td></tr>';
-                echo '<tr><td>SERIAL</td><td><input type="text" name="SERIAL" value=""></td></tr>';
+                echo '<tr><th scope="row"><label for="name">NAME</label></th>
+              <td><input type="text" id="name" name="NAME"></td></tr>';
 
-                echo '<tr><td>MANUFACTURER</td><td><select name="MANUFACTURER">';
+                echo '<tr><th scope="row"><label for="serial">SERIAL</label></th>
+              <td><input type="text" id="serial" name="SERIAL"></td></tr>';
+
+                echo '<tr><th scope="row"><label for="manufacturer">MANUFACTURER</label></th><td>
+            <select name="MANUFACTURER" id="manufacturer">';
 
                 $result_man = mysqli_query($connecte, "SELECT DISTINCT MANUFACTURER FROM inventaire ORDER BY MANUFACTURER ASC");
                 while ($man = mysqli_fetch_assoc($result_man)) {
-                    $selected = (isset($resultat) && $resultat['MANUFACTURER'] == $man['MANUFACTURER']) ? 'selected' : '';
-                    echo '<option value="'.htmlspecialchars($man['MANUFACTURER']).'" '.$selected.'>'.htmlspecialchars($man['MANUFACTURER']).'</option>';
-                }
-
-                if (isset($_SESSION['options_suppl']['MANUFACTURER'])) {
-                    foreach ($_SESSION['options_suppl']['MANUFACTURER'] as $man_supp) {
-                        $selected = (isset($resultat) && $resultat['MANUFACTURER'] == $man_supp) ? 'selected' : '';
-                        echo '<option value="'.htmlspecialchars($man_supp).'" '.$selected.'>'.htmlspecialchars($man_supp).'</option>';
-                    }
+                    echo '<option value="'.htmlspecialchars($man['MANUFACTURER']).'">'.
+                            htmlspecialchars($man['MANUFACTURER']).'</option>';
                 }
 
                 echo '<option value="">--Autre--</option>';
                 echo '</select></td></tr>';
-                echo '<tr><td>MODEL</td><td><input type="text" name="MODEL" value=""></td></tr>';
-                echo '<tr><td>TYPE</td><td><input type="text" name="TYPE" value=""></td></tr>';
-                echo '<tr><td>CPU</td><td><input type="text" name="CPU" value=""></td></tr>';
-                echo '<tr><td>RAM_MB</td><td><input type="number" name="RAM_MB" value=""></td></tr>';
-                echo '<tr><td>DISK_GB</td><td><input type="number" name="DISK_GB" value=""></td></tr>';
 
-                echo '<tr><td>OS</td><td><select name="OS">';
+                echo '<tr><th scope="row"><label for="model">MODEL</label></th>
+              <td><input type="text" id="model" name="MODEL"></td></tr>';
+
+                echo '<tr><th scope="row"><label for="type">TYPE</label></th>
+              <td><input type="text" id="type" name="TYPE"></td></tr>';
+
+                echo '<tr><th scope="row"><label for="cpu">CPU</label></th>
+              <td><input type="text" id="cpu" name="CPU"></td></tr>';
+
+                echo '<tr><th scope="row"><label for="ram">RAM_MB</label></th>
+              <td><input type="number" id="ram" name="RAM_MB"></td></tr>';
+
+                echo '<tr><th scope="row"><label for="disk">DISK_GB</label></th>
+              <td><input type="number" id="disk" name="DISK_GB"></td></tr>';
+
+                echo '<tr><th scope="row"><label for="os">OS</label></th><td>
+            <select name="OS" id="os">';
 
                 $result_os = mysqli_query($connecte, "SELECT DISTINCT OS FROM inventaire ORDER BY OS ASC");
                 while ($os = mysqli_fetch_assoc($result_os)) {
-                    $selected = (isset($resultat) && $resultat['OS'] == $os['OS']) ? 'selected' : '';
-                    echo '<option value="'.htmlspecialchars($os['OS']).'" '.$selected.'>'.htmlspecialchars($os['OS']).'</option>';
-                }
-
-                if (isset($_SESSION['options_suppl']['OS'])) {
-                    foreach ($_SESSION['options_suppl']['OS'] as $os_supp) {
-                        $selected = (isset($resultat) && $resultat['OS'] == $os_supp) ? 'selected' : '';
-                        echo '<option value="'.htmlspecialchars($os_supp).'" '.$selected.'>'.htmlspecialchars($os_supp).'</option>';
-                    }
+                    echo '<option value="'.htmlspecialchars($os['OS']).'">'.
+                            htmlspecialchars($os['OS']).'</option>';
                 }
 
                 echo '<option value="">--Autre--</option>';
                 echo '</select></td></tr>';
 
+                echo '<tr><th scope="row"><label for="domain">DOMAIN</label></th>
+              <td><input type="text" id="domain" name="DOMAIN"></td></tr>';
 
-                echo '<tr><td>DOMAIN</td><td><input type="text" name="DOMAIN" value=""></td></tr>';
-                echo '<tr><td>LOCATION</td><td><input type="text" name="LOCATION" value=""></td></tr>';
-                echo '<tr><td>BUILDING</td><td><input type="text" name="BUILDING" value=""></td></tr>';
-                echo '<tr><td>ROOM</td><td><input type="text" name="ROOM" value=""></td></tr>';
-                echo '<tr><td>MACADDR</td><td><input type="text" name="MACADDR" value=""></td></tr>';
-                echo '<tr><td>PURCHASE_DATE</td><td><input type="date" name="PURCHASE_DATE" value=""></td></tr>';
-                echo '<tr><td>WARRANTY_END</td><td><input type="date" name="WARRANTY_END" value=""></td></tr>';
+                echo '<tr><th scope="row"><label for="location">LOCATION</label></th>
+              <td><input type="text" id="location" name="LOCATION"></td></tr>';
 
-                echo '<tr><td colspan="2"><button type="submit" name="ajouter_bd" class="btn-valider">Ajouter</button></td></tr>';
+                echo '<tr><th scope="row"><label for="building">BUILDING</label></th>
+              <td><input type="text" id="building" name="BUILDING"></td></tr>';
+
+                echo '<tr><th scope="row"><label for="room">ROOM</label></th>
+              <td><input type="text" id="room" name="ROOM"></td></tr>';
+
+                echo '<tr><th scope="row"><label for="mac">MACADDR</label></th>
+              <td><input type="text" id="mac" name="MACADDR"></td></tr>';
+
+                echo '<tr><th scope="row"><label for="purchase">PURCHASE_DATE</label></th>
+              <td><input type="date" id="purchase" name="PURCHASE_DATE"></td></tr>';
+
+                echo '<tr><th scope="row"><label for="warranty">WARRANTY_END</label></th>
+              <td><input type="date" id="warranty" name="WARRANTY_END"></td></tr>';
+
+                echo '<tr><td colspan="2">
+            <button type="submit" name="ajouter_bd" class="btn-valider">Ajouter</button>
+          </td></tr>';
                 echo '<tr><td colspan="2"><button type="button" onclick="window.location.href=\'gestion.php\'">Annuler</button></td></tr>';
 
-                echo '</tbody></table>';
-                echo '</form>';
+
+                echo '</tbody></table></form>';
             }
+
 
 
             $message = "";
