@@ -9,462 +9,415 @@ if ($_SESSION['role'] !== 'technicien' && $_SESSION['role'] !== 'adminweb') {
     exit;
 }
 
+$connecte = mysqli_connect("localhost", "sae2025", "!sae2025!", "rpiBD");
+if (!$connecte) die("Erreur de connexion");
 
+/* ══ EXPORT CSV — avant tout output ══ */
+if (isset($_GET['export_csv'])) {
+    if (ob_get_length()) ob_end_clean();
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename=inventaire_export.csv');
+    header('Pragma: no-cache');
+    $out = fopen('php://output', 'w');
+    fputcsv($out, ['NAME','SERIAL','MANUFACTURER','MODEL','TYPE','CPU','RAM_MB','DISK_GB','OS','DOMAIN','LOCATION','BUILDING','ROOM','MACADDR','PURCHASE_DATE','WARRANTY_END']);
+    $r = mysqli_query($connecte, "SELECT NAME,SERIAL,MANUFACTURER,MODEL,TYPE,CPU,RAM_MB,DISK_GB,OS,DOMAIN,LOCATION,BUILDING,ROOM,MACADDR,PURCHASE_DATE,WARRANTY_END FROM inventaire");
+    while ($row = mysqli_fetch_assoc($r)) fputcsv($out, $row);
+    fclose($out);
+    exit();
+}
+
+/* ══ IMPORT CSV ══ */
+$import_message = '';
+if (isset($_POST['import_csv']) && isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] == 0) {
+    $sep   = isset($_POST['separateur'])  ? $_POST['separateur']                : ',';
+    $start = isset($_POST['ligne_debut']) ? max(1, intval($_POST['ligne_debut'])) : 2;
+    $handle = fopen($_FILES['csvFile']['tmp_name'], "r");
+    $cur = 0; $imported = 0;
+    while (($d = fgetcsv($handle, 2000, $sep)) !== FALSE) {
+        $cur++;
+        if ($cur < $start) continue;
+        if (count($d) < 16) continue;
+        $stmt = mysqli_prepare($connecte, "INSERT INTO inventaire (NAME,SERIAL,MANUFACTURER,MODEL,TYPE,CPU,RAM_MB,DISK_GB,OS,DOMAIN,LOCATION,BUILDING,ROOM,MACADDR,PURCHASE_DATE,WARRANTY_END) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        mysqli_stmt_bind_param($stmt, "ssssssiiissssssss", $d[0],$d[1],$d[2],$d[3],$d[4],$d[5],$d[6],$d[7],$d[8],$d[9],$d[10],$d[11],$d[12],$d[13],$d[14],$d[15]);
+        if (mysqli_stmt_execute($stmt)) $imported++;
+        mysqli_stmt_close($stmt);
+    }
+    fclose($handle);
+    $import_message = "<p style='color:green;'>Importation réussie : $imported ligne(s) insérée(s).</p>";
+}
+
+/* ══ SUPPRESSION ══ */
+if (isset($_POST['supprimer'])) {
+    $id = intval($_POST['suppr_id']);
+    $res = mysqli_query($connecte, "SELECT * FROM inventaire WHERE ID=$id");
+    if ($res && mysqli_num_rows($res) > 0) {
+        $eq = mysqli_fetch_assoc($res);
+        $stmt = mysqli_prepare($connecte, "INSERT INTO rebut_devices (NAME,SERIAL,MANUFACTURER,MODEL,TYPE,CPU,RAM_MB,DISK_GB,OS,DOMAIN,LOCATION,BUILDING,ROOM,MACADDR,PURCHASE_DATE,WARRANTY_END) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        mysqli_stmt_bind_param($stmt, "ssssssiissssssss", $eq['NAME'],$eq['SERIAL'],$eq['MANUFACTURER'],$eq['MODEL'],$eq['TYPE'],$eq['CPU'],$eq['RAM_MB'],$eq['DISK_GB'],$eq['OS'],$eq['DOMAIN'],$eq['LOCATION'],$eq['BUILDING'],$eq['ROOM'],$eq['MACADDR'],$eq['PURCHASE_DATE'],$eq['WARRANTY_END']);
+        if (mysqli_stmt_execute($stmt)) {
+            $model = mysqli_real_escape_string($connecte, $eq['MODEL']);
+            mysqli_query($connecte, "DELETE FROM moniteur WHERE MODEL='$model'");
+            mysqli_query($connecte, "DELETE FROM inventaire WHERE ID=$id");
+            header('Location: gestion.php'); exit;
+        }
+    }
+}
+
+/* ══ MISE À JOUR ══ */
+$update_message = '';
+if (isset($_POST['mise_a_jour'])) {
+    $stmt = mysqli_prepare($connecte, "UPDATE inventaire SET NAME=?,SERIAL=?,MANUFACTURER=?,MODEL=?,TYPE=?,CPU=?,RAM_MB=?,DISK_GB=?,OS=?,DOMAIN=?,LOCATION=?,BUILDING=?,ROOM=?,MACADDR=?,PURCHASE_DATE=?,WARRANTY_END=? WHERE ID=?");
+    mysqli_stmt_bind_param($stmt, "ssssssiiisssssssi", $_POST['NAME'],$_POST['SERIAL'],$_POST['MANUFACTURER'],$_POST['MODEL'],$_POST['TYPE'],$_POST['CPU'],$_POST['RAM_MB'],$_POST['DISK_GB'],$_POST['OS'],$_POST['DOMAIN'],$_POST['LOCATION'],$_POST['BUILDING'],$_POST['ROOM'],$_POST['MACADDR'],$_POST['PURCHASE_DATE'],$_POST['WARRANTY_END'],$_POST['id']);
+    mysqli_stmt_execute($stmt);
+    $update_message = "<p style='color:green;'>Équipement mis à jour.</p>";
+}
+
+/* ══ AJOUT ══ */
+$add_message = '';
+if (isset($_POST['ajouter_bd'])) {
+    $chk = mysqli_prepare($connecte, "SELECT COUNT(*) FROM inventaire WHERE SERIAL=?");
+    mysqli_stmt_bind_param($chk, "s", $_POST['SERIAL']);
+    mysqli_stmt_execute($chk);
+    mysqli_stmt_bind_result($chk, $cnt);
+    mysqli_stmt_fetch($chk);
+    mysqli_stmt_close($chk);
+    if ($cnt > 0) {
+        $add_message = "<p style='color:red;'>Ce numéro de série existe déjà !</p>";
+    } else {
+        $stmt = mysqli_prepare($connecte, "INSERT INTO inventaire (NAME,SERIAL,MANUFACTURER,MODEL,TYPE,CPU,RAM_MB,DISK_GB,OS,DOMAIN,LOCATION,BUILDING,ROOM,MACADDR,PURCHASE_DATE,WARRANTY_END) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        mysqli_stmt_bind_param($stmt, "ssssssiissssssss", $_POST['NAME'],$_POST['SERIAL'],$_POST['MANUFACTURER'],$_POST['MODEL'],$_POST['TYPE'],$_POST['CPU'],$_POST['RAM_MB'],$_POST['DISK_GB'],$_POST['OS'],$_POST['DOMAIN'],$_POST['LOCATION'],$_POST['BUILDING'],$_POST['ROOM'],$_POST['MACADDR'],$_POST['PURCHASE_DATE'],$_POST['WARRANTY_END']);
+        $add_message = mysqli_stmt_execute($stmt)
+            ? "<p style='color:green;'>Équipement ajouté !</p>"
+            : "<p style='color:red;'>Erreur : ".mysqli_error($connecte)."</p>";
+    }
+}
+
+/* ══ FILTRES, TRI & PAGINATION (GET) ══ */
+$per_page = 20;
+$page     = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+
+// Colonnes triables autorisées (whitelist pour sécurité)
+$allowed_sort = ['NAME','SERIAL','MANUFACTURER','MODEL','TYPE','CPU','RAM_MB','DISK_GB','OS','DOMAIN','LOCATION','BUILDING','ROOM','MACADDR','PURCHASE_DATE','WARRANTY_END'];
+$sort_col = isset($_GET['sort']) && in_array($_GET['sort'], $allowed_sort) ? $_GET['sort'] : 'NAME';
+$sort_dir = isset($_GET['dir'])  && $_GET['dir'] === 'DESC' ? 'DESC' : 'ASC';
+$sort_dir_next = $sort_dir === 'ASC' ? 'DESC' : 'ASC'; // pour inverser au prochain clic
+
+$filters = [
+    'f_manufacturer' => ['col' => 'MANUFACTURER', 'val' => ''],
+    'f_type'         => ['col' => 'TYPE',         'val' => ''],
+    'f_cpu'          => ['col' => 'CPU',           'val' => ''],
+    'f_os'           => ['col' => 'OS',            'val' => ''],
+    'f_domain'       => ['col' => 'DOMAIN',        'val' => ''],
+    'f_location'     => ['col' => 'LOCATION',      'val' => ''],
+    'f_building'     => ['col' => 'BUILDING',      'val' => ''],
+    'f_room'         => ['col' => 'ROOM',          'val' => ''],
+];
+foreach ($filters as $key => &$f) {
+    $f['val'] = isset($_GET[$key]) ? trim($_GET[$key]) : '';
+}
+unset($f);
+
+$where_parts = []; $where_params = []; $where_types = '';
+foreach ($filters as $f) {
+    if ($f['val'] !== '') {
+        $where_parts[] = "`{$f['col']}` = ?";
+        $where_params[] = $f['val'];
+        $where_types   .= 's';
+    }
+}
+$where_sql = $where_parts ? 'WHERE ' . implode(' AND ', $where_parts) : '';
+
+// Total
+$cnt_stmt = mysqli_prepare($connecte, "SELECT COUNT(*) FROM inventaire $where_sql");
+if ($where_types) mysqli_stmt_bind_param($cnt_stmt, $where_types, ...$where_params);
+mysqli_stmt_execute($cnt_stmt);
+mysqli_stmt_bind_result($cnt_stmt, $total_rows);
+mysqli_stmt_fetch($cnt_stmt);
+mysqli_stmt_close($cnt_stmt);
+
+$total_pages = max(1, ceil($total_rows / $per_page));
+if ($page > $total_pages) $page = $total_pages;
+$offset = ($page - 1) * $per_page;
+
+// Données triées
+$data_stmt = mysqli_prepare($connecte, "SELECT * FROM inventaire $where_sql ORDER BY `$sort_col` $sort_dir LIMIT $per_page OFFSET $offset");
+if ($where_types) mysqli_stmt_bind_param($data_stmt, $where_types, ...$where_params);
+mysqli_stmt_execute($data_stmt);
+$data_result = mysqli_stmt_get_result($data_stmt);
+
+// Listes déroulantes
+function get_distinct($connecte, $col) {
+    $r = mysqli_query($connecte, "SELECT DISTINCT `$col` FROM inventaire WHERE `$col` IS NOT NULL AND `$col`!='' ORDER BY `$col` ASC");
+    $vals = [];
+    while ($row = mysqli_fetch_row($r)) $vals[] = $row[0];
+    return $vals;
+}
+$lists = [];
+foreach (['MANUFACTURER','TYPE','CPU','OS','DOMAIN','LOCATION','BUILDING','ROOM'] as $col)
+    $lists[$col] = get_distinct($connecte, $col);
+
+// Query string helper — préserve filtres + tri
+function build_qs($overrides = []) {
+    $keys = ['f_manufacturer','f_type','f_cpu','f_os','f_domain','f_location','f_building','f_room','sort','dir','page'];
+    $params = [];
+    foreach ($keys as $k) {
+        $val = array_key_exists($k, $overrides) ? $overrides[$k] : (isset($_GET[$k]) ? $_GET[$k] : '');
+        if ($val !== '') $params[$k] = $val;
+    }
+    return 'gestion.php' . (count($params) ? '?' . http_build_query($params) : '');
+}
+
+// Lien de tri pour un en-tête
+function sort_link($col, $label, $sort_col, $sort_dir) {
+    $is_active = ($col === $sort_col);
+    $new_dir   = ($is_active && $sort_dir === 'ASC') ? 'DESC' : 'ASC';
+    $arrow     = '';
+    if ($is_active) $arrow = $sort_dir === 'ASC' ? ' ▲' : ' ▼';
+    $url = build_qs(['sort' => $col, 'dir' => $new_dir, 'page' => '1']);
+    $class = $is_active ? 'th-sort th-sort-active' : 'th-sort';
+    return '<th class="'.$class.'"><a href="'.$url.'">'.htmlspecialchars($label).$arrow.'</a></th>';
+}
+
+// Pagination avec ellipses
+function render_pagination($page, $total_pages) {
+    if ($total_pages <= 1) return '';
+    $html = '<div class="pagination">';
+    $html .= $page > 1
+        ? '<a class="prev-next" href="'.build_qs(['page'=>$page-1]).'">‹ Préc.</a>'
+        : '<span class="prev-next disabled">‹ Préc.</span>';
+    $shown = array_unique(array_merge([1,$total_pages], range(max(2,$page-2), min($total_pages-1,$page+2))));
+    sort($shown);
+    $prev = null;
+    foreach ($shown as $p) {
+        if ($prev !== null && $p - $prev > 1) $html .= '<span class="ellipsis">…</span>';
+        $html .= $p === $page
+            ? '<span class="active-page">'.$p.'</span>'
+            : '<a href="'.build_qs(['page'=>$p]).'">'.$p.'</a>';
+        $prev = $p;
+    }
+    $html .= $page < $total_pages
+        ? '<a class="prev-next" href="'.build_qs(['page'=>$page+1]).'">Suiv. ›</a>'
+        : '<span class="prev-next disabled">Suiv. ›</span>';
+    return $html . '</div>';
+}
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Gestion parc IT - Gestionnaire</title>
+    <title>Gestion parc IT - Unités centrales</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
 <div class="wrapper">
     <?php include("header.php"); ?>
-
-
     <div class="main-container">
         <?php include("navbar.php"); ?>
         <div class="contenu">
+
             <div class="gestion-nav">
-                <span class="gestion-btn gestion-btn-active" aria-current="page">
-                    Unités centrales
-                </span>
+                <span class="gestion-btn gestion-btn-active" aria-current="page">Unités centrales</span>
                 <a href="moniteur.php" class="gestion-btn">Moniteurs</a>
             </div>
+
             <?php
-
-            $connecte = mysqli_connect("localhost", "sae2025", "!sae2025!", "rpiBD");
-            if (!$connecte) {
-                die("Erreur de connexion");
-            }
-
-
-            if (isset($_GET['export_csv'])) {
-                header('Content-Type: text/csv; charset=utf-8');
-                header('Content-Disposition: attachment; filename=inventaire_export.csv');
-                $output = fopen('php://output', 'w');
-
-                // En-têtes
-                fputcsv($output, array('NAME', 'SERIAL', 'MANUFACTURER', 'MODEL', 'TYPE', 'CPU', 'RAM_MB', 'DISK_GB', 'OS', 'DOMAIN', 'LOCATION', 'BUILDING', 'ROOM', 'MACADDR', 'PURCHASE_DATE', 'WARRANTY_END'));
-
-                $query = "SELECT NAME, SERIAL, MANUFACTURER, MODEL, TYPE, CPU, RAM_MB, DISK_GB, OS, DOMAIN, LOCATION, BUILDING, ROOM, MACADDR, PURCHASE_DATE, WARRANTY_END FROM inventaire";
-                $result = mysqli_query($connecte, $query);
-
-                while ($row = mysqli_fetch_assoc($result)) {
-                    fputcsv($output, $row);
-                }
-                fclose($output);
-                exit();
-            }
-
-            if (isset($_POST['import_csv'])) {
-                if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] == 0) {
-                    $filename = $_FILES['csvFile']['tmp_name'];
-                    $handle = fopen($filename, "r");
-                    fgetcsv($handle);
-                    while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                        $sql = "INSERT INTO inventaire (NAME, SERIAL, MANUFACTURER, MODEL, TYPE, CPU, RAM_MB, DISK_GB, OS, DOMAIN, LOCATION, BUILDING, ROOM, MACADDR, PURCHASE_DATE, WARRANTY_END) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-                        $stmt = mysqli_prepare($connecte, $sql);
-                        mysqli_stmt_bind_param($stmt, "ssssssiiissssssss",
-                                $data[0], $data[1], $data[2], $data[3],
-                                $data[4], $data[5], $data[6], $data[7],
-                                $data[8], $data[9], $data[10], $data[11],
-                                $data[12], $data[13], $data[14], $data[15]
-                        );
-                        mysqli_stmt_execute($stmt);
-                    }
-                    fclose($handle);
-                    echo "<p style='color:green;'>Importation Inventaire réussie !</p>";
-                }
-            }
-
+            /* ── Formulaire modification ── */
             if (isset($_POST['modifier'])) {
                 $id = intval($_POST['modif_id']);
                 $res = mysqli_query($connecte, "SELECT * FROM inventaire WHERE ID=$id");
-                $resultat = mysqli_fetch_assoc($res);
-
-                if ($resultat) {
+                $r = mysqli_fetch_assoc($res);
+                if ($r) {
                     echo '<h2>Modifier unité centrale</h2>';
-                    echo '<form method="post" class="contenu_modifier">';
-                    echo '<input type="hidden" name="id" value="'.$resultat['ID'].'">';
-
-                    echo '<table><tbody>';
-
-                    echo '<tr><th scope="row"><label for="name">NAME</label></th>
-                  <td><input type="text" id="name" name="NAME" value="'.$resultat['NAME'].'"></td></tr>';
-
-                    echo '<tr><th scope="row"><label for="serial">SERIAL</label></th>
-                  <td><input type="text" id="serial" name="SERIAL" value="'.$resultat['SERIAL'].'"></td></tr>';
-
-                    echo '<tr><th scope="row"><label for="manufacturer">MANUFACTURER</label></th><td>
-                <select name="MANUFACTURER" id="manufacturer">';
-
-                    $result_man = mysqli_query($connecte, "SELECT DISTINCT MANUFACTURER FROM inventaire ORDER BY MANUFACTURER ASC");
-                    while ($man = mysqli_fetch_assoc($result_man)) {
-                        $selected = ($resultat['MANUFACTURER'] == $man['MANUFACTURER']) ? 'selected' : '';
-                        echo '<option value="'.htmlspecialchars($man['MANUFACTURER']).'" '.$selected.'>'.
-                                htmlspecialchars($man['MANUFACTURER']).'</option>';
-                    }
-
-                    echo '<option value="">--Autre--</option>';
-                    echo '</select></td></tr>';
-
-                    echo '<tr><th scope="row"><label for="model">MODEL</label></th>
-                  <td><input type="text" id="model" name="MODEL" value="'.$resultat['MODEL'].'"></td></tr>';
-
-                    echo '<tr><th scope="row"><label for="type">TYPE</label></th>
-                  <td><input type="text" id="type" name="TYPE" value="'.$resultat['TYPE'].'"></td></tr>';
-
-                    echo '<tr><th scope="row"><label for="cpu">CPU</label></th>
-                  <td><input type="text" id="cpu" name="CPU" value="'.$resultat['CPU'].'"></td></tr>';
-
-                    echo '<tr><th scope="row"><label for="ram">RAM_MB</label></th>
-                  <td><input type="number" id="ram" name="RAM_MB" value="'.$resultat['RAM_MB'].'"></td></tr>';
-
-                    echo '<tr><th scope="row"><label for="disk">DISK_GB</label></th>
-                  <td><input type="number" id="disk" name="DISK_GB" value="'.$resultat['DISK_GB'].'"></td></tr>';
-
-                    echo '<tr><th scope="row"><label for="os">OS</label></th><td>
-                <select name="OS" id="os">';
-
-                    $result_os = mysqli_query($connecte, "SELECT DISTINCT OS FROM inventaire ORDER BY OS ASC");
-                    while ($os = mysqli_fetch_assoc($result_os)) {
-                        $selected = ($resultat['OS'] == $os['OS']) ? 'selected' : '';
-                        echo '<option value="'.htmlspecialchars($os['OS']).'" '.$selected.'>'.
-                                htmlspecialchars($os['OS']).'</option>';
-                    }
-
-                    echo '<option value="">--Autre--</option>';
-                    echo '</select></td></tr>';
-
-                    echo '<tr><th scope="row"><label for="domain">DOMAIN</label></th>
-                  <td><input type="text" id="domain" name="DOMAIN" value="'.$resultat['DOMAIN'].'"></td></tr>';
-
-                    echo '<tr><th scope="row"><label for="location">LOCATION</label></th>
-                  <td><input type="text" id="location" name="LOCATION" value="'.$resultat['LOCATION'].'"></td></tr>';
-
-                    echo '<tr><th scope="row"><label for="building">BUILDING</label></th>
-                  <td><input type="text" id="building" name="BUILDING" value="'.$resultat['BUILDING'].'"></td></tr>';
-
-                    echo '<tr><th scope="row"><label for="room">ROOM</label></th>
-                  <td><input type="text" id="room" name="ROOM" value="'.$resultat['ROOM'].'"></td></tr>';
-
-                    echo '<tr><th scope="row"><label for="mac">MACADDR</label></th>
-                  <td><input type="text" id="mac" name="MACADDR" value="'.$resultat['MACADDR'].'"></td></tr>';
-
-                    echo '<tr><th scope="row"><label for="purchase">PURCHASE_DATE</label></th>
-                  <td><input type="date" id="purchase" name="PURCHASE_DATE" value="'.$resultat['PURCHASE_DATE'].'"></td></tr>';
-
-                    echo '<tr><th scope="row"><label for="warranty">WARRANTY_END</label></th>
-                  <td><input type="date" id="warranty" name="WARRANTY_END" value="'.$resultat['WARRANTY_END'].'"></td></tr>';
-
-                    echo '<tr><td colspan="2">
-                <button type="submit" name="mise_a_jour" class="btn-valider">Modifier</button>
-              </td></tr>';
-                    echo '<tr><td colspan="2"><button type="button" onclick="window.location.href=\'gestion.php\'">Annuler</button></td></tr>';
-
-
+                    echo '<form method="post"><input type="hidden" name="id" value="'.$r['ID'].'"><table><tbody>';
+                    foreach (['NAME','SERIAL','MODEL','TYPE','CPU','DOMAIN','LOCATION','BUILDING','ROOM','MACADDR'] as $field)
+                        echo '<tr><th>'.$field.'</th><td><input type="text" name="'.$field.'" value="'.htmlspecialchars($r[$field]).'"></td></tr>';
+                    echo '<tr><th>MANUFACTURER</th><td><select name="MANUFACTURER">';
+                    foreach ($lists['MANUFACTURER'] as $v) { $s=($r['MANUFACTURER']==$v)?'selected':''; echo '<option value="'.htmlspecialchars($v).'" '.$s.'>'.htmlspecialchars($v).'</option>'; }
+                    echo '<option value="">-- Autre --</option></select></td></tr>';
+                    echo '<tr><th>OS</th><td><select name="OS">';
+                    foreach ($lists['OS'] as $v) { $s=($r['OS']==$v)?'selected':''; echo '<option value="'.htmlspecialchars($v).'" '.$s.'>'.htmlspecialchars($v).'</option>'; }
+                    echo '<option value="">-- Autre --</option></select></td></tr>';
+                    echo '<tr><th>RAM_MB</th><td><input type="number" name="RAM_MB" value="'.htmlspecialchars($r['RAM_MB']).'"></td></tr>';
+                    echo '<tr><th>DISK_GB</th><td><input type="number" name="DISK_GB" value="'.htmlspecialchars($r['DISK_GB']).'"></td></tr>';
+                    echo '<tr><th>PURCHASE_DATE</th><td><input type="date" name="PURCHASE_DATE" value="'.htmlspecialchars($r['PURCHASE_DATE']).'"></td></tr>';
+                    echo '<tr><th>WARRANTY_END</th><td><input type="date" name="WARRANTY_END" value="'.htmlspecialchars($r['WARRANTY_END']).'"></td></tr>';
+                    echo '<tr><td colspan="2"><button type="submit" name="mise_a_jour">Enregistrer</button> <a href="gestion.php" class="btn-reset">Annuler</a></td></tr>';
                     echo '</tbody></table></form>';
                 }
             }
 
-
-            if (isset($_POST['supprimer'])) {
-                $id = intval($_POST['suppr_id']);
-
-                $res = mysqli_query($connecte, "SELECT * FROM inventaire WHERE ID=$id");
-
-                if ($res && mysqli_num_rows($res) > 0) {
-                    $equipement = mysqli_fetch_assoc($res);
-                    $sql_rebut = "
-            INSERT INTO rebut_devices
-            (NAME, SERIAL, MANUFACTURER, MODEL, TYPE, CPU, RAM_MB, DISK_GB, OS, DOMAIN, LOCATION, BUILDING, ROOM, MACADDR, PURCHASE_DATE, WARRANTY_END)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ";
-
-                    $stmt = mysqli_prepare($connecte, $sql_rebut);
-                    mysqli_stmt_bind_param(
-                            $stmt,
-                            "ssssssiissssssss",
-                            $equipement['NAME'],
-                            $equipement['SERIAL'],
-                            $equipement['MANUFACTURER'],
-                            $equipement['MODEL'],
-                            $equipement['TYPE'],
-                            $equipement['CPU'],
-                            $equipement['RAM_MB'],
-                            $equipement['DISK_GB'],
-                            $equipement['OS'],
-                            $equipement['DOMAIN'],
-                            $equipement['LOCATION'],
-                            $equipement['BUILDING'],
-                            $equipement['ROOM'],
-                            $equipement['MACADDR'],
-                            $equipement['PURCHASE_DATE'],
-                            $equipement['WARRANTY_END']
-                    );
-
-                    if (mysqli_stmt_execute($stmt)) {
-
-                        $model = mysqli_real_escape_string($connecte, $equipement['MODEL']);
-                        mysqli_query($connecte, "DELETE FROM moniteur WHERE MODEL='$model'");
-
-                        mysqli_query($connecte, "DELETE FROM inventaire WHERE ID=$id");
-
-                        header('Location: gestion.php');
-                        exit;
-                    } else {
-                        echo "<p style='color:red;'>Erreur lors de l'ajout au rebut.</p>";
-                    }
-                } else {
-                    echo "<p style='color:red;'>Équipement introuvable.</p>";
-                }
-            }
-
-
-
+            /* ── Formulaire ajout ── */
             if (isset($_POST['ajout'])) {
-                echo '<h2>Ajouter unité centrale</h2>';
-                echo '<form method="post" class="contenu_modifier">';
-                echo '<table><tbody>';
-
-                echo '<tr><th scope="row"><label for="name">NAME</label></th>
-              <td><input type="text" id="name" name="NAME"></td></tr>';
-
-                echo '<tr><th scope="row"><label for="serial">SERIAL</label></th>
-              <td><input type="text" id="serial" name="SERIAL"></td></tr>';
-
-                echo '<tr><th scope="row"><label for="manufacturer">MANUFACTURER</label></th><td>
-            <select name="MANUFACTURER" id="manufacturer">';
-
-                $result_man = mysqli_query($connecte, "SELECT DISTINCT MANUFACTURER FROM inventaire ORDER BY MANUFACTURER ASC");
-                while ($man = mysqli_fetch_assoc($result_man)) {
-                    echo '<option value="'.htmlspecialchars($man['MANUFACTURER']).'">'.
-                            htmlspecialchars($man['MANUFACTURER']).'</option>';
-                }
-
-                echo '<option value="">--Autre--</option>';
-                echo '</select></td></tr>';
-
-                echo '<tr><th scope="row"><label for="model">MODEL</label></th>
-              <td><input type="text" id="model" name="MODEL"></td></tr>';
-
-                echo '<tr><th scope="row"><label for="type">TYPE</label></th>
-              <td><input type="text" id="type" name="TYPE"></td></tr>';
-
-                echo '<tr><th scope="row"><label for="cpu">CPU</label></th>
-              <td><input type="text" id="cpu" name="CPU"></td></tr>';
-
-                echo '<tr><th scope="row"><label for="ram">RAM_MB</label></th>
-              <td><input type="number" id="ram" name="RAM_MB"></td></tr>';
-
-                echo '<tr><th scope="row"><label for="disk">DISK_GB</label></th>
-              <td><input type="number" id="disk" name="DISK_GB"></td></tr>';
-
-                echo '<tr><th scope="row"><label for="os">OS</label></th><td>
-            <select name="OS" id="os">';
-
-                $result_os = mysqli_query($connecte, "SELECT DISTINCT OS FROM inventaire ORDER BY OS ASC");
-                while ($os = mysqli_fetch_assoc($result_os)) {
-                    echo '<option value="'.htmlspecialchars($os['OS']).'">'.
-                            htmlspecialchars($os['OS']).'</option>';
-                }
-
-                echo '<option value="">--Autre--</option>';
-                echo '</select></td></tr>';
-
-                echo '<tr><th scope="row"><label for="domain">DOMAIN</label></th>
-              <td><input type="text" id="domain" name="DOMAIN"></td></tr>';
-
-                echo '<tr><th scope="row"><label for="location">LOCATION</label></th>
-              <td><input type="text" id="location" name="LOCATION"></td></tr>';
-
-                echo '<tr><th scope="row"><label for="building">BUILDING</label></th>
-              <td><input type="text" id="building" name="BUILDING"></td></tr>';
-
-                echo '<tr><th scope="row"><label for="room">ROOM</label></th>
-              <td><input type="text" id="room" name="ROOM"></td></tr>';
-
-                echo '<tr><th scope="row"><label for="mac">MACADDR</label></th>
-              <td><input type="text" id="mac" name="MACADDR"></td></tr>';
-
-                echo '<tr><th scope="row"><label for="purchase">PURCHASE_DATE</label></th>
-              <td><input type="date" id="purchase" name="PURCHASE_DATE"></td></tr>';
-
-                echo '<tr><th scope="row"><label for="warranty">WARRANTY_END</label></th>
-              <td><input type="date" id="warranty" name="WARRANTY_END"></td></tr>';
-
-                echo '<tr><td colspan="2">
-            <button type="submit" name="ajouter_bd" class="btn-valider">Ajouter</button>
-          </td></tr>';
-                echo '<tr><td colspan="2"><button type="button" onclick="window.location.href=\'gestion.php\'">Annuler</button></td></tr>';
-
-
+                echo '<h2>Ajouter une unité centrale</h2>';
+                echo '<form method="post"><table><tbody>';
+                foreach (['NAME','SERIAL','MODEL','TYPE','CPU','DOMAIN','LOCATION','BUILDING','ROOM','MACADDR'] as $field)
+                    echo '<tr><th>'.$field.'</th><td><input type="text" name="'.$field.'"></td></tr>';
+                echo '<tr><th>MANUFACTURER</th><td><select name="MANUFACTURER">';
+                foreach ($lists['MANUFACTURER'] as $v) echo '<option value="'.htmlspecialchars($v).'">'.htmlspecialchars($v).'</option>';
+                echo '<option value="">-- Autre --</option></select></td></tr>';
+                echo '<tr><th>OS</th><td><select name="OS">';
+                foreach ($lists['OS'] as $v) echo '<option value="'.htmlspecialchars($v).'">'.htmlspecialchars($v).'</option>';
+                echo '<option value="">-- Autre --</option></select></td></tr>';
+                echo '<tr><th>RAM_MB</th><td><input type="number" name="RAM_MB"></td></tr>';
+                echo '<tr><th>DISK_GB</th><td><input type="number" name="DISK_GB"></td></tr>';
+                echo '<tr><th>PURCHASE_DATE</th><td><input type="date" name="PURCHASE_DATE"></td></tr>';
+                echo '<tr><th>WARRANTY_END</th><td><input type="date" name="WARRANTY_END"></td></tr>';
+                echo '<tr><td colspan="2"><button type="submit" name="ajouter_bd">Ajouter</button> <a href="gestion.php" class="btn-reset">Annuler</a></td></tr>';
                 echo '</tbody></table></form>';
             }
 
-
-
-            $message = "";
-            if (isset($_POST['ajouter_bd'])) {
-                // Vérifier si le SERIAL existe déjà
-                $check_sql = "SELECT COUNT(*) as count FROM inventaire WHERE SERIAL = ?";
-                $check_stmt = mysqli_prepare($connecte, $check_sql);
-                mysqli_stmt_bind_param($check_stmt, "s", $_POST['SERIAL']);
-                mysqli_stmt_execute($check_stmt);
-                mysqli_stmt_bind_result($check_stmt, $count);
-                mysqli_stmt_fetch($check_stmt);
-                mysqli_stmt_close($check_stmt);
-
-                if ($count > 0) {
-                    $message = "<p style='color:red;'>Erreur : ce numéro de série existe déjà !</p>";
-                } else {
-                    // insertion
-                    $sql = "INSERT INTO inventaire (NAME, SERIAL, MANUFACTURER, MODEL, TYPE, CPU, RAM_MB, DISK_GB, OS, DOMAIN, LOCATION, BUILDING, ROOM, MACADDR, PURCHASE_DATE, WARRANTY_END) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                    $stmt = mysqli_prepare($connecte, $sql);
-                    mysqli_stmt_bind_param($stmt, "ssssssiissssssss",
-                            $_POST['NAME'], $_POST['SERIAL'], $_POST['MANUFACTURER'], $_POST['MODEL'],
-                            $_POST['TYPE'], $_POST['CPU'], $_POST['RAM_MB'], $_POST['DISK_GB'],
-                            $_POST['OS'], $_POST['DOMAIN'], $_POST['LOCATION'], $_POST['BUILDING'],
-                            $_POST['ROOM'], $_POST['MACADDR'], $_POST['PURCHASE_DATE'], $_POST['WARRANTY_END']
-                    );
-
-                    if (mysqli_stmt_execute($stmt)) {
-                        $message = "<p style='color:green;'>Équipement ajouté avec succès !</p>";
-                    } else {
-                        $message = "<p style='color:red;'>Erreur lors de l'ajout : ".mysqli_error($connecte)."</p>";
-                    }
-                }
-            }
-            echo $message;
-
-
-
-
-
-            if (isset($_POST['mise_a_jour'])) {
-
-                $sql = "UPDATE inventaire SET NAME=?, SERIAL=?, MANUFACTURER=?, MODEL=?, TYPE=?, CPU=?, RAM_MB=?, DISK_GB=?, OS=?, DOMAIN=?, LOCATION=?, BUILDING=?, ROOM=?, MACADDR=?, PURCHASE_DATE=?, WARRANTY_END=? WHERE ID=?";
-
-                $stmt = mysqli_prepare($connecte, $sql);
-
-                mysqli_stmt_bind_param($stmt, "ssssssiiisssssssi",
-                        $_POST['NAME'], $_POST['SERIAL'], $_POST['MANUFACTURER'], $_POST['MODEL'],
-                        $_POST['TYPE'], $_POST['CPU'], $_POST['RAM_MB'], $_POST['DISK_GB'],
-                        $_POST['OS'], $_POST['DOMAIN'], $_POST['LOCATION'], $_POST['BUILDING'],
-                        $_POST['ROOM'], $_POST['MACADDR'], $_POST['PURCHASE_DATE'],
-                        $_POST['WARRANTY_END'], $_POST['id']
-                );
-
-                mysqli_stmt_execute($stmt);
-                echo "<p style='color:green;'>Équipement mis à jour avec succès !</p>";
-            }
-
+            echo $import_message . $update_message . $add_message;
             ?>
 
-            <h3>Liste de unité central : </h3>
-            <div class="csv_box">
-                <form method="post" enctype="multipart/form-data" style="display:inline;">
-                    <label for="csvFileInputGestion" class="csv" style="cursor:pointer;">Importer CSV</label>
-                    <input type="file" id="csvFileInputGestion" name="csvFile" accept=".csv" style="display: none;" onchange="this.form.submit()" />
-                    <input type="hidden" name="import_csv" value="1">
-                </form>
-                <a href="gestion.php?export_csv=1" class="csv2">Exporter en CSV</a>
-            </div>
+            <h3>Liste des unités centrales
+                <small style="font-weight:normal;font-size:13px;color:#666;">
+                    — <?= $total_rows ?> résultat(s), page <?= $page ?>/<?= $total_pages ?>
+                </small>
+            </h3>
 
-            <?php
-            $data = mysqli_query($connecte, "SELECT * FROM inventaire");
-            if (!$data) {
-                die("Erreur dans SELECT * : " . mysqli_error($connecte));
-            }
+            <!-- ══ BARRE D'OUTILS : filtres GET ══ -->
+            <form method="get" action="gestion.php">
+                <?php if ($sort_col !== 'NAME'): ?><input type="hidden" name="sort" value="<?= htmlspecialchars($sort_col) ?>"><?php endif; ?>
+                <?php if ($sort_dir !== 'ASC'):  ?><input type="hidden" name="dir"  value="<?= htmlspecialchars($sort_dir) ?>"><?php endif; ?>
 
-            echo '<table border="1">';
-            echo '<thead>';
-            echo '<tr>';
-            echo '<th>
-        <form method="post">
-            <input type="hidden" name="ajout" value="ajout">
-            <button type="submit">Ajout</button>
-        </form>
-      </th>';
-            echo '<th>NAME</th>';
-            echo '<th>SERIAL</th>';
-            echo '<th>MANUFACTURER</th>';
-            echo '<th>MODEL</th>';
-            echo '<th>TYPE</th>';
-            echo '<th>CPU</th>';
-            echo '<th>RAM_MB</th>';
-            echo '<th>DISK_GB</th>';
-            echo '<th>OS</th>';
-            echo '<th>DOMAIN</th>';
-            echo '<th>LOCATION</th>';
-            echo '<th>BUILDING</th>';
-            echo '<th>ROOM</th>';
-            echo '<th>MACADDR</th>';
-            echo '<th>PURCHASE_DATE</th>';
-            echo '<th>WARRANTY_END</th>';
-            echo '<th>Action</th>';
-            echo '</tr>';
-            echo '</thead>';
-            echo '<tbody>';
+                <div class="table-toolbar">
+                    <div class="toolbar-filters">
+                        <div class="toolbar-filters-row">
+                            <?php
+                            $filter_labels = [
+                                'f_manufacturer' => ['Marque',   'MANUFACTURER'],
+                                'f_type'         => ['Type',     'TYPE'],
+                                'f_cpu'          => ['CPU',      'CPU'],
+                                'f_os'           => ['OS',       'OS'],
+                                'f_domain'       => ['Domaine',  'DOMAIN'],
+                                'f_location'     => ['Location', 'LOCATION'],
+                                'f_building'     => ['Bâtiment', 'BUILDING'],
+                                'f_room'         => ['Salle',    'ROOM'],
+                            ];
+                            foreach ($filter_labels as $param => [$label, $col]):
+                                $cur_val = $filters[$param]['val'];
+                            ?>
+                            <div class="toolbar-filter-group">
+                                <label><?= $label ?></label>
+                                <select name="<?= $param ?>">
+                                    <option value="">Tous</option>
+                                    <?php foreach ($lists[$col] as $v): ?>
+                                        <option value="<?= htmlspecialchars($v) ?>" <?= $cur_val===$v?'selected':'' ?>>
+                                            <?= htmlspecialchars($v) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <?php endforeach; ?>
 
+                            <!-- Boutons CSV à droite (liens simples, pas dans un form) -->
+                            <div class="toolbar-right">
+                                <div class="toolbar-filter-group">
+                                    <label>&nbsp;</label>
+                                    <a href="#overlay-import-csv" class="csv">Importer CSV</a>
+                                </div>
+                                <div class="toolbar-filter-group">
+                                    <label>&nbsp;</label>
+                                    <a href="gestion.php?export_csv=1" class="csv2">Exporter CSV</a>
+                                </div>
+                            </div>
+                        </div><!-- /toolbar-filters-row -->
 
-            while ($ligne = mysqli_fetch_assoc($data)) {
+                        <div class="toolbar-actions-row">
+                            <button type="submit" class="btn-filter">Filtrer</button>
+                            <a href="gestion.php" class="btn-reset">Réinitialiser</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
 
-                $id = $ligne['ID'];
+            <!-- Bouton Ajouter : form POST totalement indépendant, hors du form GET -->
+            <form method="post" action="gestion.php" style="text-align:right; margin-bottom: 6px;">
+                <button type="submit" name="ajout" class="btn-ajouter-bas">+ Ajouter</button>
+            </form>
 
-                echo '<tr>';
-
-                echo '<td>';
-                echo '<form method="post" onsubmit="return confirm(\'Confirmer la suppression ?\');">';
-                echo '<input type="hidden" name="suppr_id" value="' . htmlspecialchars($id) . '">';
-                echo '<button type="submit" name="supprimer">Supprimer</button>';
-                echo '</form>';
-                echo '</td>';
-
-                echo '<td>' . htmlspecialchars($ligne['NAME']) . '</td>';
-                echo '<td>' . htmlspecialchars($ligne['SERIAL']) . '</td>';
-                echo '<td>' . htmlspecialchars($ligne['MANUFACTURER']) . '</td>';
-                echo '<td>' . htmlspecialchars($ligne['MODEL']) . '</td>';
-                echo '<td>' . htmlspecialchars($ligne['TYPE']) . '</td>';
-                echo '<td>' . htmlspecialchars($ligne['CPU']) . '</td>';
-                echo '<td>' . htmlspecialchars($ligne['RAM_MB']) . '</td>';
-                echo '<td>' . htmlspecialchars($ligne['DISK_GB']) . '</td>';
-                echo '<td>' . htmlspecialchars($ligne['OS']) . '</td>';
-                echo '<td>' . htmlspecialchars($ligne['DOMAIN']) . '</td>';
-                echo '<td>' . htmlspecialchars($ligne['LOCATION']) . '</td>';
-                echo '<td>' . htmlspecialchars($ligne['BUILDING']) . '</td>';
-                echo '<td>' . htmlspecialchars($ligne['ROOM']) . '</td>';
-                echo '<td>' . htmlspecialchars($ligne['MACADDR']) . '</td>';
-                echo '<td>' . htmlspecialchars($ligne['PURCHASE_DATE']) . '</td>';
-                echo '<td>' . htmlspecialchars($ligne['WARRANTY_END']) . '</td>';
-
-
-                echo '<td>';
-                echo '<form method="post">';
-                echo '<input type="hidden" name="modif_id" value="' . htmlspecialchars($id) . '">';
-                echo '<button type="submit" name="modifier">Modifier</button>';
-                echo '</form>';
-                echo '</td>';
-
-                echo '</tr>';
-            }
-
-            echo '</tbody>';
-            echo '</table>';
-
-            ?>
+            <!-- ══ TABLEAU ══ -->
+            <table border="1">
+                <thead>
+                <tr>
+                    <?php
+                    $cols = ['NAME','SERIAL','MANUFACTURER','MODEL','TYPE','CPU','RAM_MB','DISK_GB','OS','DOMAIN','LOCATION','BUILDING','ROOM','MACADDR','PURCHASE_DATE','WARRANTY_END'];
+                    foreach ($cols as $c) echo sort_link($c, $c, $sort_col, $sort_dir);
+                    ?>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php while ($ligne = mysqli_fetch_assoc($data_result)): $id = $ligne['ID']; ?>
+                <tr>
+                    <td><?= htmlspecialchars($ligne['NAME']) ?></td>
+                    <td><?= htmlspecialchars($ligne['SERIAL']) ?></td>
+                    <td><?= htmlspecialchars($ligne['MANUFACTURER']) ?></td>
+                    <td><?= htmlspecialchars($ligne['MODEL']) ?></td>
+                    <td><?= htmlspecialchars($ligne['TYPE']) ?></td>
+                    <td><?= htmlspecialchars($ligne['CPU']) ?></td>
+                    <td><?= htmlspecialchars($ligne['RAM_MB']) ?></td>
+                    <td><?= htmlspecialchars($ligne['DISK_GB']) ?></td>
+                    <td><?= htmlspecialchars($ligne['OS']) ?></td>
+                    <td><?= htmlspecialchars($ligne['DOMAIN']) ?></td>
+                    <td><?= htmlspecialchars($ligne['LOCATION']) ?></td>
+                    <td><?= htmlspecialchars($ligne['BUILDING']) ?></td>
+                    <td><?= htmlspecialchars($ligne['ROOM']) ?></td>
+                    <td><?= htmlspecialchars($ligne['MACADDR']) ?></td>
+                    <td><?= htmlspecialchars($ligne['PURCHASE_DATE']) ?></td>
+                    <td><?= htmlspecialchars($ligne['WARRANTY_END']) ?></td>
+                    <td class="action-icons">
+                        <form method="post" style="display:inline;">
+                            <input type="hidden" name="modif_id" value="<?= $id ?>">
+                            <button type="submit" name="modifier" class="btn-icone">
+                                <img src="../img/crayon.png" alt="Modifier" title="Modifier">
+                            </button>
+                        </form>
+                        <form method="post" style="display:inline;" onsubmit="return confirm('Confirmer la suppression ?');">
+                            <input type="hidden" name="suppr_id" value="<?= $id ?>">
+                            <button type="submit" name="supprimer" class="btn-icone">
+                                <img src="../img/poubelle.png" alt="Supprimer" title="Supprimer">
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <?php endwhile; ?>
                 </tbody>
             </table>
+
+            <?= render_pagination($page, $total_pages) ?>
+
         </div>
     </div>
-
-    <footer>
-        <p>&copy; 2025 - Projet SAE - Groupe X</p>
-    </footer>
+    <footer><p>&copy; 2025 - Projet SAE - Groupe X</p></footer>
 </div>
+
+<!-- ══ OVERLAY IMPORT CSV ══ -->
+<div class="overlay-csv" id="overlay-import-csv">
+    <div class="overlay-box">
+        <h3>Importer un fichier CSV</h3>
+        <form method="post" enctype="multipart/form-data">
+            <label>Fichier CSV</label>
+            <input type="file" name="csvFile" accept=".csv" required>
+
+            <label>Séparateur</label>
+            <select name="separateur">
+                <option value=",">, (virgule)</option>
+                <option value=";">; (point-virgule)</option>
+                <option value="&#9;">⇥ (tabulation)</option>
+                <option value="|">| (pipe)</option>
+            </select>
+
+            <label>Ligne de départ (ex : 2 pour ignorer l'en-tête)</label>
+            <input type="number" name="ligne_debut" value="2" min="1">
+
+            <div class="overlay-actions">
+                <a href="gestion.php" class="btn-annuler">Annuler</a>
+                <button type="submit" name="import_csv" class="btn-importer">Importer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 </body>
 </html>

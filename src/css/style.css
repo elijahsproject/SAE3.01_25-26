@@ -1,4 +1,3 @@
-
 * {
     box-sizing: border-box;
     margin: 0;
@@ -26,10 +25,10 @@ header {
     background-color: #ffffff;
     padding: 20px;
     text-align: center;
-    position: relative; /* reste dans le flux */
+    position: relative;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    z-index: 10; /* au-dessus du contenu si nécessaire */
-    height: 80px; /* hauteur fixe du header */
+    z-index: 10;
+    height: 80px;
 }
 
 header h1 {
@@ -91,8 +90,8 @@ footer {
 /* Vidéo adaptative */
 video {
     display: block;
-    max-width: 80vw;  /* Ne dépasse pas 80% de la largeur de l’écran */
-    max-height: 80vh; /* Ne dépasse pas 80% de la hauteur de l’écran */
+    max-width: 80vw;
+    max-height: 80vh;
     border-radius: 4px;
 }
 
@@ -172,8 +171,6 @@ video {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-
-
     padding-top: 30px;
 }
 
@@ -193,14 +190,14 @@ video {
 
 /* Contenu principal */
 .contenu_index {
-    flex: 1 1 auto; /* permet de grandir correctement */
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    align-items: center; /* centre horizontalement le contenu */
+    align-items: center;
     gap: 60px;
-    padding: 30px; /* espace interne */
-    margin-top: 20px; /* espace sous le header */
-    overflow-y: auto; /* scroll si nécessaire */
+    padding: 30px;
+    margin-top: 20px;
+    overflow-y: auto;
     overflow-x: hidden;
 }
 
@@ -218,7 +215,7 @@ video {
 /* Nav*/
 nav {
     width: 200px;
-    height: 100%; /* remplit toute la hauteur de .main-container */
+    height: 100%;
     background-color: #ffffff;
     padding: 20px;
     box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
@@ -249,19 +246,48 @@ nav ul li a:hover {
 }
 
 /* Table  */
-table{
+table {
     border-collapse: collapse;
     background-color: #fff;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
-
-
 
 th, td {
     padding: 10px;
     border: 1px solid #ccc;
     font-size: 14px;
     text-align: center;
+}
+
+/* Survol ligne */
+tbody tr:hover {
+    background-color: #e8e8f0;
+}
+
+/* ══ En-têtes triables ══ */
+th.th-sort a {
+    color: inherit;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+}
+
+th.th-sort:hover {
+    background-color: #e8e0ff;
+}
+
+th.th-sort a:hover {
+    color: #4d15da;
+}
+
+th.th-sort-active {
+    background-color: #ede8ff;
+    color: #4d15da;
+}
+
+th.th-sort-active a {
+    color: #4d15da;
+    font-weight: bold;
 }
 
 /* generaux */
@@ -293,12 +319,12 @@ a:hover {
 
 
 /* CSV */
-.csv_box{
-    display : flex;
-    width : 100%;
-    justify-content: space-between   ;
-
+.csv_box {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
 }
+
 .csv {
     width: auto;
     padding: 10px;
@@ -321,19 +347,15 @@ a:hover {
     cursor: pointer;
 }
 
-.csv:hover{
+.csv:hover {
     color:#00A0C6;
 }
 
-.moniteur{
+.moniteur {
     display: flex;
     flex-direction: column;
     gap: 30px;
 }
-
-
-
-
 
 /* Conteneur pour centrer les boutons */
 .gestion-nav {
@@ -355,8 +377,6 @@ a:hover {
     border-radius: 12px;
     transition: all 0.3s ease;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-
-
     color: white;
     background-color: #5a2ed4;
 }
@@ -407,14 +427,14 @@ p b {
 .chart {
     display: flex;
     flex-direction: column;
-    align-items: center;  /* centre horizontalement le contenu */
-    justify-content: center; /* centre verticalement si nécessaire */
+    align-items: center;
+    justify-content: center;
     max-width: 600px;
-    margin: 15px auto; /* centre le conteneur lui-même */
+    margin: 15px auto;
     padding: 10px;
     background-color: #f9f9f9;
     border-radius: 8px;
-    text-align: center; /* pour le texte sous l'image */
+    text-align: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
@@ -423,21 +443,21 @@ p b {
     height: auto;
     border-radius: 4px;
     display: block;
-    margin: 0 auto; /* centre l'image dans son conteneur */
+    margin: 0 auto;
 }
 
 /* Centrer le formulaire */
 .conteneur_connexion {
     display: flex;
-    justify-content: center; /* centre horizontalement */
-    align-items: center;     /* centre verticalement */
-    min-height: 100vh;       /* pour centrer sur toute la hauteur de l’écran */
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
     position: relative;
     z-index: 1;
 }
 
 .wrapper_stat {
-    min-height: 100vh; /* ok pour permettre au contenu de dépasser */
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
@@ -449,4 +469,327 @@ p b {
     line-height: 1.6em;
     max-width: 800px;
     margin: 0 auto 25px auto;
+}
+
+/* ══════════════════════════════════════
+   BARRE D'OUTILS TABLEAU (filtres + CSV)
+   ══════════════════════════════════════ */
+.table-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.toolbar-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.toolbar-filters-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.toolbar-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.toolbar-filter-group label {
+    font-size: 11px;
+    color: #555;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.toolbar-filter-group select {
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 13px;
+    width: auto;
+    margin: 0;
+    background: #fff;
+    min-width: 110px;
+}
+
+.toolbar-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-filter {
+    padding: 6px 16px;
+    background-color: #4d15da;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.btn-filter:hover {
+    background-color: #3a0fc7;
+}
+
+.btn-reset {
+    padding: 6px 12px;
+    background-color: #888;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    white-space: nowrap;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-reset:hover {
+    background-color: #666;
+    color: white;
+}
+
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    padding-left: 24px;
+    border-left: 2px solid #ccc;
+}
+
+/* ══════════════════════════════════════
+   PAGINATION
+   ══════════════════════════════════════ */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.pagination a,
+.pagination span {
+    display: inline-block;
+    padding: 5px 11px;
+    border-radius: 5px;
+    font-size: 13px;
+    text-decoration: none;
+    border: 1px solid #ccc;
+    background: #fff;
+    color: #333;
+    min-width: 32px;
+    text-align: center;
+}
+
+.pagination a:hover {
+    background-color: #e0d8ff;
+    color: #4d15da;
+}
+
+.pagination .active-page {
+    background-color: #4d15da;
+    color: #fff;
+    border-color: #4d15da;
+    font-weight: bold;
+}
+
+.pagination .ellipsis {
+    background: none;
+    border: none;
+    color: #555;
+    padding: 5px 4px;
+}
+
+.pagination .prev-next {
+    background-color: #5a2ed4;
+    color: white;
+    border-color: #5a2ed4;
+}
+
+.pagination .prev-next:hover {
+    background-color: #4d15da;
+    color: white;
+}
+
+.pagination .disabled {
+    background-color: #ddd;
+    color: #999;
+    border-color: #ddd;
+    pointer-events: none;
+}
+
+/* ══════════════════════════════════════
+   ICÔNES D'ACTION
+   ══════════════════════════════════════ */
+.action-icons {
+    white-space: nowrap;
+}
+
+.action-icons form {
+    display: inline;
+}
+
+.action-icons .btn-icone {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 3px;
+    line-height: 1;
+}
+
+.action-icons .btn-icone img {
+    width: 20px;
+    height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+    vertical-align: middle;
+    display: inline-block;
+    object-fit: contain;
+}
+
+/* ══════════════════════════════════════
+   BOUTON AJOUTER (dans la toolbar)
+   ══════════════════════════════════════ */
+.btn-ajouter-bas {
+    display: inline-block;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.btn-ajouter-bas:hover {
+    background-color: #218838;
+    color: white;
+}
+
+/* ══════════════════════════════════════
+   OVERLAY IMPORT CSV
+   ══════════════════════════════════════ */
+
+/* Lien déclencheur de l'overlay via ancre CSS */
+.overlay-csv {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.overlay-csv:target {
+    display: flex;
+}
+
+.overlay-box {
+    background: #fff;
+    border-radius: 10px;
+    padding: 30px 36px;
+    width: 400px;
+    max-width: 95vw;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    position: relative;
+}
+
+.overlay-box h3 {
+    margin-bottom: 18px;
+    font-size: 18px;
+    color: #263238;
+}
+
+.overlay-box label {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    color: #444;
+    margin-bottom: 4px;
+    margin-top: 12px;
+}
+
+.overlay-box input[type="file"],
+.overlay-box input[type="number"],
+.overlay-box input[type="text"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.overlay-box select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    margin: 0 0 4px 0;
+    background: #f9f9f9;
+}
+
+.overlay-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.overlay-actions .btn-annuler {
+    padding: 8px 18px;
+    background: #888;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.overlay-actions .btn-annuler:hover {
+    background: #666;
+    color: white;
+}
+
+.overlay-actions .btn-importer {
+    padding: 8px 18px;
+    background: #4d15da;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.overlay-actions .btn-importer:hover {
+    background: #3a0fc7;
+}
+
+/* Protégé adminweb */
+.protege {
+    color: red;
+    font-weight: bold;
+    font-size: 13px;
 }

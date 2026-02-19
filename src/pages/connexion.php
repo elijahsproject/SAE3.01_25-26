@@ -1,66 +1,15 @@
 <?php
 session_start();
-?>
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Gestion parc IT - Se connecter</title>
-    <link rel="stylesheet" href="../css/style.css">
-</head>
-<body>
-<div class="wrapper">
 
+$erreur = ""; 
 
-
-    <div class="main-container">
-
-
-
-
-        <div class="contenu_connexion">
-            <div class="conteneur_connexion">
-                <div class="formulaire">
-                    <div class="logo">
-                        <img src="../img/logo.png" alt="Logo de l’application de gestion du parc informatique" class="image-logo">
-                    </div>
-                    <h1 class="nom-entreprise">No bug</h1>
-                    <form method="post">
-                        <label for="Login" class="sr-only">Login</label>
-                        <input type="text" name="Login" id="Login" placeholder="Login" class="champ">
-
-                        <label for="MotDePasse" class="sr-only">Mot de passe</label>
-                        <input type="password" name="MotDePasse" id="MotDePasse" placeholder="Mot de passe" class="champ">
-
-                        <button type="submit" class="bouton">Connexion</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-<footer>
-    <p>&copy; 2025 - Projet SAE - Groupe X</p>
-</footer>
-</div>
-</body>
-</html>
-<?php
 $connecte = mysqli_connect("localhost", "sae2025", "!sae2025!", "rpiBD");
-if($connecte==False){
-    echo "Erreur de connexion";
-}
-else{
-    echo("connecte avec succes");
-}
-$db = mysqli_select_db($connecte,"rpiBD");
-if(!$db){
-    echo "utilisation de la base KO";
-}
-else{
-    echo("utilisation de la base OK");
-    echo"<br>";
+
+if (!$connecte) {
+    die("Échec de la connexion : " . mysqli_connect_error());
 }
 
+// ajout verification champs pour erreur
 if (isset($_POST['Login'], $_POST['MotDePasse'])) {
 
     $login = $_POST['Login'];
@@ -92,7 +41,51 @@ if (isset($_POST['Login'], $_POST['MotDePasse'])) {
 
         header("Location: accueil.php");
         exit;
+    } else {
+        // ici l'erreur
+        $erreur = "Login ou mot de passe incorrect";
     }
 }
-
 ?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion parc IT - Se connecter</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="wrapper">
+    <div class="main-container">
+        <div class="contenu_connexion">
+            <div class="conteneur_connexion">
+                <div class="formulaire">
+                    <div class="logo">
+                        <img src="../img/logo.png" alt="Logo de l’application de gestion du parc informatique" class="image-logo">
+                    </div>
+                    <h1 class="nom-entreprise">No bug</h1>
+                    <form method="post">
+                        <label for="Login" class="sr-only">Login</label>
+                        <input type="text" name="Login" id="Login" placeholder="Login" class="champ">
+
+                        <label for="MotDePasse" class="sr-only">Mot de passe</label>
+                        <input type="password" name="MotDePasse" id="MotDePasse" placeholder="Mot de passe" class="champ">
+
+                        <?php if (!empty($erreur)): ?>
+                            <p style="color: red; text-align: center; margin-bottom: 15px; font-weight: bold;">
+                                <?= htmlspecialchars($erreur) ?>
+                            </p>
+                        <?php endif; ?>
+
+                        <button type="submit" class="bouton">Connexion</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+<footer>
+    <p>&copy; 2025 - Projet SAE - Groupe X</p>
+</footer>
+</div>
+</body>
+</html>
