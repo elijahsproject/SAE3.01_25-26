@@ -1,5 +1,7 @@
 <?php
 session_start();
+require_once "chacha20.php";
+
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'adminweb') {
     header("Location: accueil.php");
     exit;
@@ -8,50 +10,111 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'adminweb') {
 $connecte = mysqli_connect("localhost", "sae2025", "!sae2025!", "rpiBD");
 if (!$connecte) die("Erreur de connexion à la base");
 
-/* ══ AJOUT ══ */
+
 $add_message = '';
+
 if (isset($_POST['ajouter_bd'])) {
-    $login = $_POST['login']; $password = $_POST['password']; $role = $_POST['role'];
+
+    $login = $_POST['login'];
+    $password = $_POST['password'];
+    $role = $_POST['role'];
+
     if ($role !== 'adminweb') {
-        $stmt = mysqli_prepare($connecte, "INSERT INTO user (login,password,role) VALUES (?,?,?)");
-        mysqli_stmt_bind_param($stmt, "sss", $login, $password, $role);
-        if (mysqli_stmt_execute($stmt)) $add_message = "<p style='color:green;'>Utilisateur ajouté.</p>";
+
+        $password_chiffre = chiffrer_chacha20($password);
+
+        $stmt = mysqli_prepare($connecte,
+                "INSERT INTO user (login,password,role) VALUES (?,?,?)"
+        );
+
+        mysqli_stmt_bind_param($stmt, "sss",
+                $login,
+                $password_chiffre,
+                $role
+        );
+
+        if (mysqli_stmt_execute($stmt)) {
+            $add_message = "<p style='color:green;'>Utilisateur ajouté (mot de passe chiffré).</p>";
+        }
+
         mysqli_stmt_close($stmt);
     }
 }
 
-/* ══ MODIFICATION ══ */
+
+
 $update_message = '';
+
 if (isset($_POST['mise_a_jour'])) {
-    $id = intval($_POST['id']); $login = $_POST['login']; $password = $_POST['password'];
+
+    $id = intval($_POST['id']);
+    $login = $_POST['login'];
+    $password = $_POST['password'];
+
     if (!empty($password)) {
-        $stmt = mysqli_prepare($connecte, "UPDATE user SET login=?,password=? WHERE id=?");
-        mysqli_stmt_bind_param($stmt, "ssi", $login, $password, $id);
+
+        $password_chiffre = chiffrer_chacha20($password);
+
+        $stmt = mysqli_prepare($connecte,
+                "UPDATE user SET login=?, password=? WHERE id=?"
+        );
+
+        mysqli_stmt_bind_param($stmt,
+                "ssi",
+                $login,
+                $password_chiffre,
+                $id
+        );
+
     } else {
-        $stmt = mysqli_prepare($connecte, "UPDATE user SET login=? WHERE id=?");
-        mysqli_stmt_bind_param($stmt, "si", $login, $id);
+
+        $stmt = mysqli_prepare($connecte,
+                "UPDATE user SET login=? WHERE id=?"
+        );
+
+        mysqli_stmt_bind_param($stmt,
+                "si",
+                $login,
+                $id
+        );
     }
-    mysqli_stmt_execute($stmt); mysqli_stmt_close($stmt);
+
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+
     $update_message = "<p style='color:green;'>Utilisateur modifié.</p>";
 }
 
-/* ══ SUPPRESSION ══ */
+
+
 $delete_message = '';
+
 if (isset($_POST['supprimer'])) {
+
     $id = intval($_POST['suppr_id']);
-    $chk = mysqli_query($connecte, "SELECT role FROM user WHERE id=$id");
+
+    $chk = mysqli_query($connecte,
+            "SELECT role FROM user WHERE id=$id"
+    );
+
     $u = mysqli_fetch_assoc($chk);
+
     if ($u && $u['role'] !== 'adminweb') {
-        mysqli_query($connecte, "DELETE FROM user WHERE id=$id");
+
+        mysqli_query($connecte,
+                "DELETE FROM user WHERE id=$id"
+        );
+
         $delete_message = "<p style='color:green;'>Utilisateur supprimé.</p>";
+
     } else {
+
         $delete_message = "<p style='color:red;'>Impossible de supprimer un compte adminweb.</p>";
     }
 }
 
-/* ══ PAGINATION ══ */
 $per_page = 20;
-$page     = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 
 $cnt_stmt = mysqli_prepare($connecte, "SELECT COUNT(*) FROM user");
 mysqli_stmt_execute($cnt_stmt);
@@ -61,29 +124,49 @@ mysqli_stmt_close($cnt_stmt);
 
 $total_pages = max(1, ceil($total_rows / $per_page));
 if ($page > $total_pages) $page = $total_pages;
+
 $offset = ($page - 1) * $per_page;
 
-$data = mysqli_query($connecte, "SELECT id,login,role FROM user LIMIT $per_page OFFSET $offset");
+$data = mysqli_query($connecte,
+        "SELECT id,login,role FROM user LIMIT $per_page OFFSET $offset"
+);
+
 
 function render_pagination_usr($page, $total_pages) {
+
     if ($total_pages <= 1) return '';
+
     $html = '<div class="pagination">';
+
     $html .= $page > 1
-        ? '<a class="prev-next" href="utilisateur.php?page='.($page-1).'">‹ Préc.</a>'
-        : '<span class="prev-next disabled">‹ Préc.</span>';
-    $shown = array_unique(array_merge([1,$total_pages], range(max(2,$page-2), min($total_pages-1,$page+2))));
+            ? '<a class="prev-next" href="utilisateur.php?page='.($page-1).'">‹ Préc.</a>'
+            : '<span class="prev-next disabled">‹ Préc.</span>';
+
+    $shown = array_unique(array_merge(
+            [1,$total_pages],
+            range(max(2,$page-2), min($total_pages-1,$page+2))
+    ));
+
     sort($shown);
+
     $prev = null;
+
     foreach ($shown as $p) {
-        if ($prev !== null && $p - $prev > 1) $html .= '<span class="ellipsis">…</span>';
+
+        if ($prev !== null && $p - $prev > 1)
+            $html .= '<span class="ellipsis">…</span>';
+
         $html .= $p === $page
-            ? '<span class="active-page">'.$p.'</span>'
-            : '<a href="utilisateur.php?page='.$p.'">'.$p.'</a>';
+                ? '<span class="active-page">'.$p.'</span>'
+                : '<a href="utilisateur.php?page='.$p.'">'.$p.'</a>';
+
         $prev = $p;
     }
+
     $html .= $page < $total_pages
-        ? '<a class="prev-next" href="utilisateur.php?page='.($page+1).'">Suiv. ›</a>'
-        : '<span class="prev-next disabled">Suiv. ›</span>';
+            ? '<a class="prev-next" href="utilisateur.php?page='.($page+1).'">Suiv. ›</a>'
+            : '<span class="prev-next disabled">Suiv. ›</span>';
+
     return $html . '</div>';
 }
 ?>

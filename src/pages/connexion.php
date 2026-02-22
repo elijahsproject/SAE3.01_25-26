@@ -1,7 +1,9 @@
 <?php
 session_start();
 
-$erreur = ""; 
+require_once "chacha20.php";
+
+$erreur = "";
 
 $connecte = mysqli_connect("localhost", "sae2025", "!sae2025!", "rpiBD");
 
@@ -9,15 +11,21 @@ if (!$connecte) {
     die("Échec de la connexion : " . mysqli_connect_error());
 }
 
-// ajout verification champs pour erreur
+
 if (isset($_POST['Login'], $_POST['MotDePasse'])) {
 
     $login = $_POST['Login'];
     $mdp   = $_POST['MotDePasse'];
 
-    $sql = "SELECT id, login, role FROM user WHERE login = ? AND password = ?";
+    //On récupère uniquement par login
+    $sql = "SELECT id, login, password, role FROM user WHERE login = ?";
     $requete = mysqli_prepare($connecte, $sql);
-    mysqli_stmt_bind_param($requete, 'ss', $login, $mdp);
+
+    if (!$requete) {
+        die("Erreur préparation : " . mysqli_error($connecte));
+    }
+
+    mysqli_stmt_bind_param($requete, 's', $login);
     mysqli_stmt_execute($requete);
     $resultat = mysqli_stmt_get_result($requete);
 
@@ -25,27 +33,40 @@ if (isset($_POST['Login'], $_POST['MotDePasse'])) {
 
         $user = mysqli_fetch_assoc($resultat);
 
-        $ip = $_SERVER['REMOTE_ADDR'];
-        $agent = $_SERVER['HTTP_USER_AGENT'];
-        $dateConnexion = date("Y-m-d H:i:s");
+        //Déchiffrement mdp
+        $motDePasseDechiffre = dechiffrer_chacha20($user['password']);
 
-        $sqlLog = "INSERT INTO logs_connexions (login, ip, user_agent, date_connexion, statut)
-                   VALUES (?, ?, ?, ?, 'SUCCES')";
-        $stmtLog = mysqli_prepare($connecte, $sqlLog);
-        mysqli_stmt_bind_param($stmtLog, 'ssss', $login, $ip, $agent, $dateConnexion);
-        mysqli_stmt_execute($stmtLog);
+        // Comparaison
+        if ($motDePasseDechiffre === $mdp) {
+            $ip = $_SERVER['REMOTE_ADDR'];
+            $agent = $_SERVER['HTTP_USER_AGENT'];
+            $dateConnexion = date("Y-m-d H:i:s");
 
-        $_SESSION['login'] = $user['login'];
-        $_SESSION['role']  = $user['role'];
-        $_SESSION['user_id'] = $user['id'];
+            $sqlLog = "INSERT INTO logs_connexions (login, ip, user_agent, date_connexion, statut)
+                       VALUES (?, ?, ?, ?, 'SUCCES')";
+            $stmtLog = mysqli_prepare($connecte, $sqlLog);
+            mysqli_stmt_bind_param($stmtLog, 'ssss', $login, $ip, $agent, $dateConnexion);
+            mysqli_stmt_execute($stmtLog);
 
-        header("Location: accueil.php");
-        exit;
+            $_SESSION['login']   = $user['login'];
+            $_SESSION['role']    = $user['role'];
+            $_SESSION['user_id'] = $user['id'];
+
+            header("Location: accueil.php");
+            exit;
+
+        } else {
+
+            $erreur = "Login ou mot de passe incorrect";
+        }
+
     } else {
-        // ici l'erreur
+
         $erreur = "Login ou mot de passe incorrect";
     }
 }
+
+mysqli_close($connecte);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
