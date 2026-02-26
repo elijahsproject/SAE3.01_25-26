@@ -543,7 +543,7 @@ p b {
 
 .btn-reset {
     padding: 6px 12px;
-    background-color: #888;
+    background-color: #595959;
     color: white;
     border: none;
     border-radius: 6px;
@@ -555,7 +555,7 @@ p b {
 }
 
 .btn-reset:hover {
-    background-color: #666;
+    background-color: #525252;
     color: white;
 }
 
@@ -626,7 +626,7 @@ p b {
 
 .pagination .disabled {
     background-color: #ddd;
-    color: #999;
+    color: #454545;
     border-color: #ddd;
     pointer-events: none;
 }
@@ -669,7 +669,7 @@ p b {
 .btn-ajouter-bas {
     display: inline-block;
     padding: 10px;
-    background-color: #28a745;
+    background-color: #276100;
     color: white;
     border: none;
     border-radius: 8px;
@@ -789,7 +789,7 @@ p b {
 
 /* Protégé adminweb */
 .protege {
-    color: red;
+    color: #B30000;
     font-weight: bold;
     font-size: 13px;
 }
