@@ -270,7 +270,7 @@ function render_pagination($page, $total_pages) {
             ?>
 
             <h3>Liste des unités centrales
-                <small style="font-weight:normal;font-size:13px;color:#666;">
+                <small style="font-weight:normal;font-size:13px;color:#454545;">
                     — <?= $total_rows ?> résultat(s), page <?= $page ?>/<?= $total_pages ?>
                 </small>
             </h3>
@@ -313,11 +313,9 @@ function render_pagination($page, $total_pages) {
                             <!-- Boutons CSV à droite (liens simples, pas dans un form) -->
                             <div class="toolbar-right">
                                 <div class="toolbar-filter-group">
-                                    <label>&nbsp;</label>
                                     <a href="#overlay-import-csv" class="csv">Importer CSV</a>
                                 </div>
                                 <div class="toolbar-filter-group">
-                                    <label>&nbsp;</label>
                                     <a href="gestion.php?export_csv=1" class="csv2">Exporter CSV</a>
                                 </div>
                             </div>

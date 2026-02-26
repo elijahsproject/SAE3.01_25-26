@@ -218,7 +218,7 @@ function render_pagination_usr($page, $total_pages) {
             ?>
 
             <h3>Liste des utilisateurs
-                <small style="font-weight:normal;font-size:13px;color:#666;">
+                <small style="font-weight:normal;font-size:13px;color:#454545;">
                     — <?= $total_rows ?> résultat(s), page <?= $page ?>/<?= $total_pages ?>
                 </small>
             </h3>

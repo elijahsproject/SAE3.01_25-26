@@ -262,7 +262,7 @@ function render_pagination_mon($page, $total_pages) {
             ?>
 
             <h3>Liste des moniteurs
-                <small style="font-weight:normal;font-size:13px;color:#666;">
+                <small style="font-weight:normal;font-size:13px;color:#454545;">
                     — <?= $total_rows ?> résultat(s), page <?= $page ?>/<?= $total_pages ?>
                 </small>
             </h3>
@@ -301,11 +301,9 @@ function render_pagination_mon($page, $total_pages) {
 
                             <div class="toolbar-right">
                                 <div class="toolbar-filter-group">
-                                    <label>&nbsp;</label>
                                     <a href="#overlay-import-csv" class="csv">Importer CSV</a>
                                 </div>
                                 <div class="toolbar-filter-group">
-                                    <label>&nbsp;</label>
                                     <a href="moniteur.php?export_csv=1" class="csv2">Exporter CSV</a>
                                 </div>
                             </div>

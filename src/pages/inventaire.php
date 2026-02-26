@@ -65,7 +65,7 @@ function render_pagination_inv($page, $total_pages) {
         <div class="contenu">
 
             <h3>Inventaire
-                <small style="font-weight:normal;font-size:13px;color:#666;">
+                <small style="font-weight:normal;font-size:13px;color:#454545;">
                     — <?= $total_rows ?> machine(s), page <?= $page ?>/<?= $total_pages ?>
                 </small>
             </h3>
