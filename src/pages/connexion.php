@@ -11,13 +11,12 @@ if (!$connecte) {
     die("Échec de la connexion : " . mysqli_connect_error());
 }
 
-
 if (isset($_POST['Login'], $_POST['MotDePasse'])) {
 
     $login = $_POST['Login'];
     $mdp   = $_POST['MotDePasse'];
 
-    //On récupère uniquement par login
+    // On récupère uniquement par login
     $sql = "SELECT id, login, password, role FROM user WHERE login = ?";
     $requete = mysqli_prepare($connecte, $sql);
 
@@ -33,21 +32,38 @@ if (isset($_POST['Login'], $_POST['MotDePasse'])) {
 
         $user = mysqli_fetch_assoc($resultat);
 
-        //Déchiffrement mdp
+        // Déchiffrement mdp
         $motDePasseDechiffre = dechiffrer_chacha20($user['password']);
 
         // Comparaison
         if ($motDePasseDechiffre === $mdp) {
+
             $ip = $_SERVER['REMOTE_ADDR'];
             $agent = $_SERVER['HTTP_USER_AGENT'];
             $dateConnexion = date("Y-m-d H:i:s");
 
+            // ================= DB =================
             $sqlLog = "INSERT INTO logs_connexions (login, ip, user_agent, date_connexion, statut)
                        VALUES (?, ?, ?, ?, 'SUCCES')";
             $stmtLog = mysqli_prepare($connecte, $sqlLog);
             mysqli_stmt_bind_param($stmtLog, 'ssss', $login, $ip, $agent, $dateConnexion);
             mysqli_stmt_execute($stmtLog);
 
+            // ================= JSON SUCCES =================
+            $file = '../logs/logs_connexions.json';
+
+            $log = [
+                    "login" => $login,
+                    "ip" => $ip,
+                    "date_connexion" => $dateConnexion
+            ];
+
+            $logs = file_exists($file) ? json_decode(file_get_contents($file), true) : [];
+            $logs[] = $log;
+
+            file_put_contents($file, json_encode($logs, JSON_PRETTY_PRINT));
+
+            // ================= SESSION =================
             $_SESSION['login']   = $user['login'];
             $_SESSION['role']    = $user['role'];
             $_SESSION['user_id'] = $user['id'];
@@ -57,10 +73,40 @@ if (isset($_POST['Login'], $_POST['MotDePasse'])) {
 
         } else {
 
+            // ================= JSON ECHEC =================
+            $file = '../logs/logs_echecs.json';
+
+            $log = [
+                    "login_tente" => $login,
+                    "ip" => $_SERVER['REMOTE_ADDR'],
+                    "date_tentative" => date("Y-m-d H:i:s"),
+                    "raison" => "Mot de passe incorrect"
+            ];
+
+            $logs = file_exists($file) ? json_decode(file_get_contents($file), true) : [];
+            $logs[] = $log;
+
+            file_put_contents($file, json_encode($logs, JSON_PRETTY_PRINT));
+
             $erreur = "Login ou mot de passe incorrect";
         }
 
     } else {
+
+        // ================= JSON ECHEC =================
+        $file = '../logs/logs_echecs.json';
+
+        $log = [
+                "login_tente" => $login,
+                "ip" => $_SERVER['REMOTE_ADDR'],
+                "date_tentative" => date("Y-m-d H:i:s"),
+                "raison" => "Utilisateur inexistant"
+        ];
+
+        $logs = file_exists($file) ? json_decode(file_get_contents($file), true) : [];
+        $logs[] = $log;
+
+        file_put_contents($file, json_encode($logs, JSON_PRETTY_PRINT));
 
         $erreur = "Login ou mot de passe incorrect";
     }
@@ -104,9 +150,9 @@ mysqli_close($connecte);
             </div>
         </div>
     </div>
-<footer>
-    <p>&copy; 2025 - Projet SAE - Groupe X</p>
-</footer>
+    <footer>
+        <p>&copy; 2025 - Projet SAE - Groupe X</p>
+    </footer>
 </div>
 </body>
 </html>
